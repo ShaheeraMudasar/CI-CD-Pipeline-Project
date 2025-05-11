@@ -1,0 +1,49 @@
+# Python-relaterade filer
+__pycache__/
+.pytest_cache
+*.pyc
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+.ruff_cache/
+
+# Virtuell miljö
+env/
+venv/
+flask_env/
+
+# Miljövariabler & känslig data
+.env
+
+# Loggfiler
+*.log
+logs/
+debug.log
+
+# ⚙️ IDE / Editor-filer
+.vscode/
+
+# Övriga temporära filer
+*.zip
+*.tar.gz
+
+# MacOS metadata
+.DS_Store  
+
+# Windows metadata
+Thumbs.db 
+
+# Terraform / OpenTofu
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.backup
+**/crash.log
+**/*.tfvars
+**/*.tfvars.json
+**/*override.tf
+override.tf
+override*.tf

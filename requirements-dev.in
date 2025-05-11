@@ -1,0 +1,4 @@
+pip-tools
+pytest
+pyhamcrest
+ruff

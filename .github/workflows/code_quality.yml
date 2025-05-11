@@ -1,0 +1,15 @@
+name: Lint checks
+
+on:
+  # TODO: körs vid skapande av pull request
+  # TODO: körs vid push till main branch
+
+jobs:
+  lint:
+    name: lint # <-- detta namn visas i repo settings
+    runs-on: ubuntu-latest
+    steps:
+      # TODO: Checka ut repot
+      # TODO: Installera Python 3.12
+      # TODO: Installera beroenden från requirements-dev.txt
+      # TODO: Kör koll av formattering och lintregler med 'ruff'
