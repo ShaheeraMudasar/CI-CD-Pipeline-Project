@@ -1,4 +1,4 @@
-name: Lint checks
+name: Lint checking!
 
 on:
   # TODO: körs vid skapande av pull request
