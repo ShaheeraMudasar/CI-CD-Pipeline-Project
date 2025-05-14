@@ -10,6 +10,7 @@ select = [
     "UP",   # pyupgrade - föreslår modern Python-syntax
     "RUF",  # Ruff-specifika regler
     "C4",   # Fångar onödiga list/dict-comprensions
+    "SIM",  # Föreslår enklare, mer läsbar kod
 ]
 ignore = [
     "E501",  # Ignorera långa rader (över 100 tecken)
