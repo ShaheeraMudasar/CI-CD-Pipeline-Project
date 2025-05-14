@@ -1,8 +1,16 @@
 <!doctype html>
 <html>
+  <head>
+    <title>Status page</title>
+    <style>
+      body { font-family: Arial, Helvetica, sans-serif; margin: 20px; }
+      .status { color: green; }
+    </style>
+  </head>
   <body>
     <h1>Status kommer här...</h1>
-    <!-- TODO: Skriv ut hälsostatus och commit-hash här -->
-    <p>Current Git commit hash: {{ commit_hash }}</p>
+    <p><strong>Status</strong> <span class="status">{{ status }}</span></p>
+    <p><strong>Git Commit Hash:</strong> {{ commit_hash }}</p>
+    <p><strong>Server uptime:</strong> {{ uptime }}</p>
   </body>
 </html>
