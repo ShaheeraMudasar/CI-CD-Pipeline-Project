@@ -13,6 +13,7 @@ select = [
     "SIM",  # Föreslår enklare, mer läsbar kod
     "ARG",  # Hittar o­använda funktionsargument
     "RET",  # För tydligare return flöden
+    "N",    # För konsekventa namn på klasser och funktioner
 ]
 ignore = [
     "E501",  # Ignorera långa rader (över 100 tecken)
