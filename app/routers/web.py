@@ -1,22 +1,22 @@
 # app/routers/web.py
 from datetime import datetime
+
 from fastapi import APIRouter, Request
-from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
+
 
 @router.get("/", response_class=HTMLResponse)
 async def index(request: Request):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    return templates.TemplateResponse(
-        "index.html",
-        { "request": request, "timestamp": now }
-    )
+    return templates.TemplateResponse("index.html", {"request": request, "timestamp": now})
+
 
 @router.get("/status", response_class=HTMLResponse)
 async def status(request: Request):
-  # TODO: implementera
-  raise NotImplementedError
+    # TODO: implementera
+    raise NotImplementedError

@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 router = APIRouter()
 
+
 @router.get("/health")
 async def health():
-  # TODO: implementera
-  raise NotImplementedError
+    # TODO: implementera
+    raise NotImplementedError
