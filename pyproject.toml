@@ -15,9 +15,7 @@ select = [
     "RET",  # enforces clearer return flows
     "N",    # enforces consistent naming for classes and functions
 ]
-ignore = [
-    "E501",  # Ignorera långa rader (över 100 tecken)
-]
+
 exclude = ["tests/*", "infra/*"]
 
 [tool.ruff.format]
