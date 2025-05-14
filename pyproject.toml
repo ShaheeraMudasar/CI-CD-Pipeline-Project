@@ -3,23 +3,23 @@ line-length = 100
 
 [tool.ruff.lint]
 select = [
-    "E",    # pycodestyle - standard stilkontroller
-    "F",    # pyflakes - vanliga fel och varningar
-    "B",    # flake8-bugbear - potentiella buggar och problem
-    "I",    # isort - sorterar importer
-    "UP",   # pyupgrade - föreslår modern Python-syntax
-    "RUF",  # Ruff-specifika regler
-    "C4",   # Fångar onödiga list/dict-comprensions
-    "SIM",  # Föreslår enklare, mer läsbar kod
-    "ARG",  # Hittar o­använda funktionsargument
-    "RET",  # För tydligare return flöden
-    "N",    # För konsekventa namn på klasser och funktioner
+    "E",    # pycodestyle – standard style checks
+    "F",    # pyflakes – common errors and warnings
+    "B",    # flake8-bugbear – potential bugs and code smells
+    "I",    # isort – sorts imports
+    "UP",   # pyupgrade – suggests modern Python syntax
+    "RUF",  # Ruff-specific rules
+    "C4",   # catches unnecessary list/dict comprehensions
+    "SIM",  # suggests simpler, more readable code
+    "ARG",  # detects unused function arguments
+    "RET",  # enforces clearer return flows
+    "N",    # enforces consistent naming for classes and functions
 ]
 
 exclude = ["tests/*", "infra/*"]
 
 [tool.ruff.format]
-# Dessa inställningar gäller endast när du kör `ruff format`
+# These settings apply only when you run `ruff format`
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
