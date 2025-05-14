@@ -5,7 +5,8 @@ from datetime import datetime
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+import subprocess
+import os
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -23,7 +24,7 @@ async def index(request: Request):
 def get_git_commit_hash() -> str:
     try:
         # Get the latest commit hash
-        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
+        commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
         return commit_hash
     except subprocess.CalledProcessError:
         return "Unknown git command"
