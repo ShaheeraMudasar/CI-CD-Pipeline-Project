@@ -3,7 +3,8 @@ from datetime import datetime
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+import subprocess
+import os
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -16,7 +17,18 @@ async def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "timestamp": now})
 
 
+def get_git_commit_hash() -> str:
+    try:
+        # Get the latest commit hash
+        commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
+        return commit_hash
+    except subprocess.CalledProcessError:
+        return "Unknown git command"
+
 @router.get("/status", response_class=HTMLResponse)
 async def status(request: Request):
-    # TODO: implementera
-    raise NotImplementedError
+    commit_hash = get_git_commit_hash()
+    return templates.TemplateResponse(
+        "status.html",
+        { "request": request, "commit_hash": commit_hash }
+    )
