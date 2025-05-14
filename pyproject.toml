@@ -11,6 +11,7 @@ select = [
     "RUF",  # Ruff-specifika regler
     "C4",   # Fångar onödiga list/dict-comprensions
     "SIM",  # Föreslår enklare, mer läsbar kod
+    "ARG",  # Hittar o­använda funktionsargument
 ]
 ignore = [
     "E501",  # Ignorera långa rader (över 100 tecken)
