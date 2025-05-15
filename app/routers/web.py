@@ -5,14 +5,13 @@ from datetime import datetime
 
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-import subprocess
-import os
-import time
+from fastapi.templating import Jinja2Templates
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 start_time = time.time()
+
 
 @router.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -24,11 +23,12 @@ async def index(request: Request):
 def get_git_commit_hash() -> str:
     try:
         # Get the latest commit hash
-        commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode('utf-8').strip()
+        commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
         return commit_hash
     except subprocess.CalledProcessError:
         return "Unknown git command"
-    
+
+
 def get_uptime() -> str:
     # Calc uptime in s, m, h
     uptime_seconds = int(time.time() - start_time)
