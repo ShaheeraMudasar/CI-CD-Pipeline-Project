@@ -38,18 +38,8 @@ def get_uptime() -> str:
     return f"{hours}h {minutes}m {seconds}s"
 
 
-def get_uptime() -> str:
-    # Calc uptime in s, m, h
-    uptime_seconds = int(time.time() - start_time)
-    hours = uptime_seconds // 3600
-    minutes = (uptime_seconds % 3600) // 60
-    seconds = uptime_seconds % 60
-    return f"{hours}h {minutes}m {seconds}s"
-
-
 @router.get("/status", response_class=HTMLResponse)
 async def status(request: Request):
-    # commit_hash = get_git_commit_hash()
     health_data = {
         "status": "Healthy",
         "commit_hash": get_git_commit_hash(),
