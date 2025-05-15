@@ -1,15 +1,31 @@
-name: Lint checking!
+name: Lint
 
-on:
-  # TODO: körs vid skapande av pull request
-  # TODO: körs vid push till main branch
+on: #triggers on following events
+  pull_request:
+  push:
+    branches: 
+      - main #applicable only when pushing to main branch
 
 jobs:
   lint:
     name: lint # <-- detta namn visas i repo settings
     runs-on: ubuntu-latest
     steps:
-      # TODO: Checka ut repot
-      # TODO: Installera Python 3.12
-      # TODO: Installera beroenden från requirements-dev.txt
-      # TODO: Kör koll av formattering och lintregler med 'ruff'
+      - name: Checkout repo  #fetching repo code
+        uses: actions/checkout@v4
+
+      - name: Install python 3.12
+        uses: actions/setup-python@v5
+        with: 
+          python-version: 3.12
+        
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip  
+          pip install -r requirements-dev.txt;
+
+      - name: Lint and format Python code with ruff after fix
+        run: |
+          ruff format --check .
+          ruff check .
+    
