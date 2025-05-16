@@ -8,14 +8,16 @@ annotated-types==0.7.0
     # via pydantic
 anyio==4.9.0
     # via starlette
-boto3==1.38.13
+boto3==1.38.15
     # via -r requirements.in
-botocore==1.38.13
+botocore==1.38.15
     # via
     #   boto3
     #   s3transfer
 click==8.2.0
     # via uvicorn
+dotenv==0.9.9
+    # via -r requirements.in
 fastapi==0.115.12
     # via -r requirements.in
 h11==0.16.0
@@ -38,6 +40,10 @@ pydantic-core==2.33.2
     # via pydantic
 python-dateutil==2.9.0.post0
     # via botocore
+python-dotenv==1.1.0
+    # via dotenv
+python-multipart==0.0.20
+    # via -r requirements.in
 s3transfer==0.12.0
     # via boto3
 six==1.17.0

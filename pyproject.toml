@@ -18,10 +18,32 @@ select = [
 ignore = [
     "E501",  # Ignorera långa rader (över 100 tecken)
 ]
-exclude = ["tests/*", "infra/*"]
+exclude = ["infra/*"]
 
 [tool.ruff.format]
 # These settings apply only when you run `ruff format`
 quote-style = "double"
 indent-style = "space"
 line-ending = "auto"
+
+[tool.pytest.ini_options]
+addopts = [
+  "--cov=app",
+  # TODO: ge fel om inte coverage målet nås
+  # TODO: (bonus) generera coverage rapport på format som github och andra plugins kan läsa från
+  "--cov-report=term-missing",
+  "--cov-report=html",
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.coverage.run]
+branch = true
+omit = [ 
+  "app/start.py", # ingen kod som behöver testas
+  "app/storage/ddb.py", # skippar nu eftersom det är testkod
+] 
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false

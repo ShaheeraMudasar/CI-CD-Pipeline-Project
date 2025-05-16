@@ -16,24 +16,25 @@ sync:
 
 # startar appen lokalt (utan docker)
 dev:
-	uvicorn app.main:app --reload
+	python -m uvicorn app.start:app --reload
 
 # kontrollerar kodstil och linter-regler
 lint:
 	@echo "→ Kör Ruff format-check (utan autoformatering)..."
-	-ruff format --check .
+	-python -m ruff format --check .
 	@echo "→ Kör Ruff lint-check (utan auto-fix)..."
-	-ruff check .
+	-python -m ruff check .
 	
 # automatisk fix av formattering och enklare linter-problem
 lint-fix:
 	@echo "→ Kör Ruff autoformat och auto-fix..."
-	ruff format .
-	ruff check . --fix
+	python -m ruff format .
+	python -m ruff check . --fix
 
 # kör alla test
+# `python -m` är så att det ska funka med virtual env
 test:
-	pytest
+	python -m pytest 
 
 # bygger och kör appen som Docker-container
 docker-run:

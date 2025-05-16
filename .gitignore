@@ -11,10 +11,15 @@ build/
 pip-wheel-metadata/
 .ruff_cache/
 
+# Code coverage rapporter
+.coverage*
+htmlcov
+coverage.*
+
 # Virtuell miljö
 env/
 venv/
-.venv
+.venv/
 flask_env/
 
 # Miljövariabler & känslig data

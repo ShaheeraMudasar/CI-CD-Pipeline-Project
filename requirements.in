@@ -1,5 +1,7 @@
 fastapi
 jinja2
 pydantic
+python-multipart
+dotenv
 boto3
 uvicorn

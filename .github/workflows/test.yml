@@ -1,0 +1,21 @@
+name: Test & Coverage
+
+on:
+  # TODO: Kör tester på alla PR mot main
+  # TODO: Kör tester även vid push till main
+
+jobs:
+  test:
+    name: test # Det här namnet syns under ”Required status checks”
+    runs-on: ubuntu-latest
+
+    steps:
+      # TODO: 1) Checka ut koden
+
+      # TODO: 2) Installera rätt Python-version
+
+      # TODO: 3) Installera beroenden
+
+      # TODO: 4) Kör enhetstester med coverage
+
+      # TODO: 5) (Valfritt) Ladda upp coverage-rapport som artefakt

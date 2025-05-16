@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Adminpanel – DevOps1-bloggen</title>
+  </head>
+  <body>
+    <h1>Adminpanel</h1>
+
+    <form id="admin-password-form">
+      <label for="global-password">Adminlösenord:</label><br>
+      <input type="password" id="global-password"><br><br>
+    </form>
+
+    {% if error %}
+      <p style="color: red">{{ error }}</p>
+    {% endif %}
+
+    <h2>Skapa nytt inlägg</h2>
+    <form method="post" action="/admin/create">
+      <label for="title">Titel:</label><br>
+      <input type="text" name="title"><br>
+      <label for="image_url">Bild-URL:</label><br>
+      <input type="text" name="image_url"><br>
+      <label for="image_text">Bildtext:</label><br>
+      <input type="text" name="image_text"><br>
+      <button type="submit">Skapa</button>
+    </form>
+
+    <h2>Befintliga inlägg</h2>
+    <ul>
+      {% for post in posts %}
+        <li>
+          {{ post.title }}
+          <form method="post" action="/admin/delete" style="display: inline;">
+            <input type="hidden" name="post_id" value="{{ post.id }}">
+            <button type="submit" onclick="return confirm('Är du säker på att du vill radera detta inlägg?')">Radera</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+    
+    <p><a href="/">← Till startsidan</a></p>
+  </body>
+
+  <script>
+    document.querySelectorAll("form").forEach(form => {
+      form.addEventListener("submit", function (event) {
+        const pw = document.getElementById("global-password").value;
+        if (!pw) {
+          alert("Du måste skriva in adminlösenordet först.");
+          event.preventDefault();
+          return;
+        }
+    
+        // lägg till lösenordet i ett hidden-fält i formuläret
+        let hidden = form.querySelector("input[name='password']");
+        if (!hidden) {
+          hidden = document.createElement("input");
+          hidden.type = "hidden";
+          hidden.name = "password";
+          form.appendChild(hidden);
+        }
+        hidden.value = pw;
+      });
+    });
+  </script>  
+</html>
