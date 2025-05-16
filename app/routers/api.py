@@ -6,4 +6,4 @@ router = APIRouter()
 
 @router.get("/health")
 async def health():
-    return JSONResponse(content={"status": "ok"}, status_code=200) # send status by string and code as JSON-format
+    return JSONResponse(content={"status": "ok"}, status_code=200) # Send status by string and code as JSON format
