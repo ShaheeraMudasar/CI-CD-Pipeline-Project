@@ -45,8 +45,6 @@ def get_uptime() -> str:
     seconds = uptime_seconds % 60
     return f"{hours}h {minutes}m {seconds}s"
 
-   
-
 
 @router.get("/posts/{post_id}", response_class=HTMLResponse)
 async def view_post(request: Request, post_id: str):
