@@ -1,5 +1,7 @@
-from app.routers.api import health
 import asyncio
+
+from app.routers.api import health
+
 
 def test_check_health():
     response = asyncio.run(health())
