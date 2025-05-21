@@ -29,8 +29,7 @@ line-ending = "auto"
 [tool.pytest.ini_options]
 addopts = [
   "--cov=app",
-  # TODO: ge fel om inte coverage målet nås
-  # TODO: (bonus) generera coverage rapport på format som github och andra plugins kan läsa från
+  "--cov-fail-under=75",
   "--cov-report=term-missing",
   "--cov-report=html",
 ]
