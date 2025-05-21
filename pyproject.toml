@@ -30,6 +30,7 @@ line-ending = "auto"
 addopts = [
   "--cov=app",
   "--cov-fail-under=75",
+  "--cov-report=json",
   "--cov-report=term-missing",
   "--cov-report=html",
 ]
