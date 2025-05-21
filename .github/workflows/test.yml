@@ -1,21 +1,37 @@
 name: Test & Coverage
 
-on:
-  # TODO: Kör tester på alla PR mot main
-  # TODO: Kör tester även vid push till main
+on: #triggers on following events
+  pull_request:
+  push:
+    branches: 
+      - main #applicable only when pushing to main branch
 
 jobs:
   test:
-    name: test # Det här namnet syns under ”Required status checks”
+    name: test # <-- detta namn visas i repo settings
     runs-on: ubuntu-latest
-
     steps:
       # TODO: 1) Checka ut koden
+      - name: Checkout repo  #fetching repo code
+        uses: actions/checkout@v4
+        with:
+          ref: coverage_exercise
 
       # TODO: 2) Installera rätt Python-version
+      - name: Install python 3.12
+        uses: actions/setup-python@v5
+        with: 
+          python-version: 3.12
 
-      # TODO: 3) Installera beroenden
+      # TODO: 3) Installera beroenden    
+        
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip  
+          pip install -r requirements-dev.txt;
+          pip install -r requirements.txt;
 
-      # TODO: 4) Kör enhetstester med coverage
-
-      # TODO: 5) (Valfritt) Ladda upp coverage-rapport som artefakt
+      # TODO: 4) Kör enhetstester med coverage    
+      - name: enhetstester
+        run: |
+          python -m pytest
