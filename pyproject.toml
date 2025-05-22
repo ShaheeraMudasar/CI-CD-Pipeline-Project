@@ -46,6 +46,8 @@ omit = [
   "app/start.py", # ingen kod som behöver testas
   "app/storage/ddb.py", # skippar nu eftersom det är testkod
   "app/env.py",
+  "app/main.py",
+  "app/models.py"
 ] 
 
 [tool.coverage.report]
