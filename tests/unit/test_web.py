@@ -54,7 +54,7 @@ def test_get_uptime():
         patch.object(web, "start_time", 1000),
         patch("app.routers.web.time.time", return_value=4661),
     ):
-        # WHEN uptime is called 
+        # WHEN uptime is called
         result = web.get_uptime()
         # THEN it returns the application's total uptime
         assert_that(result, equal_to("1h 1m 1s"))
@@ -88,9 +88,10 @@ async def test_view_post_returns_404_for_missing_post():
         # WHEN view post is called
         response = await web.view_post(mock_request, "nonexistent")
 
-        # THEN it gives the error 
+        # THEN it gives the error
         assert_that(response.status_code, equal_to(404))
         assert_that(response.body.decode(), equal_to("Post not found"))
+
 
 @pytest.mark.asyncio
 async def test_admin_panel_shows_admin_web_page():
