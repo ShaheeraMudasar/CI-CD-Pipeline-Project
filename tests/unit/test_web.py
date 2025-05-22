@@ -50,12 +50,14 @@ def test_get_git_commit_hash_fail():
 # This unit test checks if get_uptime function returns valid uptime
 def test_get_uptime():
     # GIVEN
-    with patch.object(web, "start_time", 1000), \
-     patch("app.routers.web.time.time", return_value=4661):
-            # WHEN
-            result = web.get_uptime()
-            # THEN
-            assert_that(result, equal_to("1h 1m 1s"))
+    with (
+        patch.object(web, "start_time", 1000),
+        patch("app.routers.web.time.time", return_value=4661),
+    ):
+        # WHEN
+        result = web.get_uptime()
+        # THEN
+        assert_that(result, equal_to("1h 1m 1s"))
 
 
 # This unit test checks if post view post function returns post when post is available
