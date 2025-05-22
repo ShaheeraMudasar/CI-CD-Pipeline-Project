@@ -15,7 +15,7 @@ jobs:
       - name: Checkout repo  #fetching repo code
         uses: actions/checkout@v4
         with:
-          ref: coverage_exercise
+          ref: 12-implementera-blockering-av-pr-merge-om-testtäckning-75-pipeline-i-testyml
 
       # TODO: 2) Installera rätt Python-version
       - name: Install python 3.12
