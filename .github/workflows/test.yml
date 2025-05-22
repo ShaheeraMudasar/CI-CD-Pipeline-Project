@@ -5,6 +5,7 @@ on: #triggers on following events
   push:
     branches: 
       - main #applicable only when pushing to main branch
+      - codecov-branch # Added for testing during push to branch. Will be deleted upon PR.
 
 jobs:
   test:
@@ -28,8 +29,15 @@ jobs:
           python -m pip install --upgrade pip  
           pip install -r requirements-dev.txt;
           pip install -r requirements.txt;
+          pip install pytest-cov
 
       # TODO: 4) Kör enhetstester med coverage    
       - name: enhetstester
         run: |
-          python -m pytest
+          python -m pytest --cov --cov-branch --cov-report=xml
+      
+      # TODO: 5) Ladda upp filen för codecov
+      - name: Upload codecov report
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
