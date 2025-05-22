@@ -92,23 +92,6 @@ async def test_view_post_returns_404_for_missing_post():
         assert_that(response.status_code, equal_to(404))
         assert_that(response.body.decode(), equal_to("Post not found"))
 
-
-# This unit test checks if admin_panel function displays the admin panel
-# @pytest.mark.asyncio
-# async def test_admin_panel_shows_admin_web_page():
-# GIVEN
-#  fake_post = [{"test_request": "1", "title": "Test Post"}]
-# mock_request = Request(scope={"type": "http"})
-# with patch("app.routers.web.get_dynamo_client") as mock_client:
-#    mock_client.return_value.list_posts = AsyncMock(return_value=fake_post)
-# WHEN
-#   response = await web.admin_panel(mock_request)
-# THEN
-#  assert_that(response.template.name, equal_to("admin.html"))
-# assert_that(response.context["posts"], is_(fake_post))
-# assert_that(response.context["error"], is_(None))
-
-
 @pytest.mark.asyncio
 async def test_admin_panel_shows_admin_web_page():
     # GIVEN
