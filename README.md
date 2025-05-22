@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/github/khdev-devops/dev24m_devops1_fast_commits/graph/badge.svg?token=HF2M4Q94AH)](https://codecov.io/github/khdev-devops/dev24m_devops1_fast_commits)
+
 # DevOps1 bloggapp
 
 En enkel blogg-app byggd med FastAPI och Pydantic. Här får du öva på att bygga en CI-pipeline, skriva TDD-tester, köra integrationstester och deploya till AWS.
