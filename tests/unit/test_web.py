@@ -113,7 +113,6 @@ async def test_admin_panel_shows_admin_web_page():
     # GIVEN
     fake_post = [{"test_request": "1", "title": "Test Post"}]
     mock_request = Request(scope={"type": "http"})
-    mocked_password = "abc123"
     with (
         patch ("app.routers.web.feature_admin_enabled", return_value = True),
         patch("app.routers.web.get_dynamo_client") as mock_client
