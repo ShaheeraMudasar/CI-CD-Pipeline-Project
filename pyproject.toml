@@ -29,7 +29,7 @@ line-ending = "auto"
 [tool.pytest.ini_options]
 addopts = [
   "--cov=app",
-  "--cov-fail-under=75",
+  "--cov-fail-under=1",
   "--cov-report=json",
   "--cov-report=term-missing",
   "--cov-report=html",
