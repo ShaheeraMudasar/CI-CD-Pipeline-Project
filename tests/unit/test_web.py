@@ -28,51 +28,51 @@ async def test_index_returns_template_response():
 
 # This unit test checks if get git commit hash function successfully returns the latest commit hash
 def test_get_git_commit_hash_success():
-    # GIVEN
+    # GIVEN the latest hash is available
     latest_hash = b"abc123"
     with patch("subprocess.check_output", return_value=latest_hash):
-        # WHEN
+        # WHEN latest commit hash is being called
         result = web.get_git_commit_hash()
-        # THEN
+        # THEN it returns the latest commit hash
         assert_that(result, equal_to("abc123"))
 
 
 # This unit test checks output if get git commit hash function fails to return latest commit hash
 def test_get_git_commit_hash_fail():
-    # GIVEN
+    # GIVEN latest commit hash is not available
     with patch("subprocess.check_output", side_effect=subprocess.CalledProcessError(1, "git")):
-        # WHEN
+        # WHEN latest commit hash is being called
         result = web.get_git_commit_hash()
-        # THEN
+        # THEN it returns the error
         assert_that(result, equal_to("Unknown git command"))
 
 
 # This unit test checks if get_uptime function returns valid uptime
 def test_get_uptime():
-    # GIVEN
+    # GIVEN start time and now time is given
     with (
         patch.object(web, "start_time", 1000),
         patch("app.routers.web.time.time", return_value=4661),
     ):
-        # WHEN
+        # WHEN uptime is called 
         result = web.get_uptime()
-        # THEN
+        # THEN it returns the application's total uptime
         assert_that(result, equal_to("1h 1m 1s"))
 
 
 # This unit test checks if post view post function returns post when post is available
 @pytest.mark.asyncio
 async def test_view_post_returns_template_for_valid_post():
-    # GIVEN
+    # GIVEN a http request is made to view post and post is available
     mock_request = Request(scope={"type": "http"})
     fake_post = {"id": "1", "title": "Test Post"}
     with patch("app.routers.web.get_dynamo_client") as mock_client:
         mock_client.return_value.get_post = AsyncMock(return_value=fake_post)
 
-        # WHEN
+        # WHEN view post function is called
         response = await web.view_post(mock_request, "1")
 
-        # THEN
+        # THEN it shows the required post's details
         assert_that(response.template.name, equal_to("post.html"))
         assert_that(response.context["post"], is_(fake_post))
 
@@ -80,21 +80,21 @@ async def test_view_post_returns_template_for_valid_post():
 # This unit test checks if post view post function returns the error when post is not available
 @pytest.mark.asyncio
 async def test_view_post_returns_404_for_missing_post():
-    # GIVEN
+    # GIVEN a http request is made to view a post but post is not available
     mock_request = Request(scope={"type": "http"})
     with patch("app.routers.web.get_dynamo_client") as mock_client:
         mock_client.return_value.get_post = AsyncMock(return_value=None)
 
-        # WHEN
+        # WHEN view post is called
         response = await web.view_post(mock_request, "nonexistent")
 
-        # THEN
+        # THEN it gives the error 
         assert_that(response.status_code, equal_to(404))
         assert_that(response.body.decode(), equal_to("Post not found"))
 
 @pytest.mark.asyncio
 async def test_admin_panel_shows_admin_web_page():
-    # GIVEN
+    # GIVEN a http request is made to show the admin page
     fake_post = [{"test_request": "1", "title": "Test Post"}]
     mock_request = Request(scope={"type": "http"})
     with (
@@ -102,9 +102,9 @@ async def test_admin_panel_shows_admin_web_page():
         patch("app.routers.web.get_dynamo_client") as mock_client,
     ):
         mock_client.return_value.list_posts = AsyncMock(return_value=fake_post)
-        # WHEN
+        # WHEN admin panel is called
         response = await web.admin_panel(mock_request)
-        # THEN
+        # THEN it shows the admin panel's webpage
         assert_that(response.template.name, equal_to("admin.html"))
         assert_that(response.context["posts"], is_(fake_post))
         assert_that(response.context["error"], is_(None))
@@ -115,7 +115,7 @@ async def test_admin_panel_shows_admin_web_page():
 
 @pytest.mark.asyncio
 async def test_create_post_from_form_redirects_on_success():
-    # GIVEN
+    # GIVEN form data is provided with valid values
     form_data = FormData(
         {
             "password": "admin123",
@@ -135,7 +135,7 @@ async def test_create_post_from_form_redirects_on_success():
     ):
         mock_client.return_value.create_post = AsyncMock()
 
-        # WHEN
+        # WHEN a new post is requested to be created
         response = await web.create_post_from_form(
             request,
             password="admin123",
@@ -144,7 +144,7 @@ async def test_create_post_from_form_redirects_on_success():
             image_text="Nice pic",
         )
 
-        # THEN
+        # THEN it redirects to home page
         assert_that(response, instance_of(RedirectResponse))
         assert_that(response.status_code, equal_to(302))
         assert_that(str(response.headers["location"]), equal_to("/"))
@@ -155,7 +155,7 @@ async def test_create_post_from_form_redirects_on_success():
 
 @pytest.mark.asyncio
 async def test_delete_post_from_form_redirects_on_success():
-    # GIVEN
+    # GIVEN a http request is made and valid form data is provided
     form_data = FormData({"password": "admin123", "post_id": "1"})
     scope = {"type": "http", "method": "POST"}
 
@@ -172,10 +172,10 @@ async def test_delete_post_from_form_redirects_on_success():
     ):
         mock_client.return_value.delete_post = AsyncMock(return_value=True)
 
-        # WHEN
+        # WHEN delete post is called
         response = await web.delete_post_from_form(request, password="admin123", post_id="1")
 
-        # THEN
+        # THEN it redirects to home page
         assert_that(response, instance_of(RedirectResponse))
         assert_that(response.status_code, equal_to(302))
         assert_that(str(response.headers["location"]), equal_to("/"))
@@ -186,16 +186,16 @@ async def test_delete_post_from_form_redirects_on_success():
 
 @pytest.mark.asyncio
 async def test_status_returns_status_template_with_health_data():
-    # GIVEN
+    # GIVEN a http request is made to get health data
     mock_request = Request(scope={"type": "http"})
     with (
         patch("app.routers.web.get_git_commit_hash", return_value="abc123"),
         patch("app.routers.web.get_uptime", return_value="1h 2m 3s"),
     ):
-        # WHEN
+        # WHEN status is called
         response = await web.status(mock_request)
 
-        # THEN
+        # THEN it returns the status page with all the health details
         assert_that(response.template.name, equal_to("status.html"))
         assert_that(response.context["status"], equal_to("Healthy"))
         assert_that(response.context["commit_hash"], equal_to("abc123"))
