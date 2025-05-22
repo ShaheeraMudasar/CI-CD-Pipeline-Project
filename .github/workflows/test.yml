@@ -5,7 +5,7 @@ on: #triggers on following events
   push:
     branches: 
       - main #applicable only when pushing to main branch
-      - codecov-branch # Added for testing during push to branch. Will be deleted upon PR.
+      # - codecov-branch # Added for testing during push to branch. Will be deleted upon PR.
 
 jobs:
   test:
