@@ -18,6 +18,15 @@ sync:
 dev:
 	python -m uvicorn app.start:app --reload
 
+dev-local: localstack-up
+	python -m uvicorn app.start:app --reload
+
+# startar localstack med en lokal AWS-miljö (i detta fall för DynamoDB)
+# Om inte finns, skapar DynamoDB tabellen som behövs för att kunna använda den lokala AWS-miljön
+localstack-up:
+	docker compose up -d localstack
+	python -m infra.local.init
+
 # kontrollerar kodstil och linter-regler
 lint:
 	@echo "→ Kör Ruff format-check (utan autoformatering)..."
@@ -35,6 +44,17 @@ lint-fix:
 # `python -m` är så att det ska funka med virtual env
 test:
 	python -m pytest 
+
+# kör unit test
+# `python -m` är så att det ska funka med virtual env
+test-unit:
+	python -m pytest tests/unit
+
+# kör integrationstest
+# vid körning av endast integrationstest behöver inte coverage-nås
+# `python -m` är så att det ska funka med virtual env
+test-integ: localstack-up
+	python -m pytest --no-cov tests/integration
 
 # bygger och kör appen som Docker-container
 docker-run:

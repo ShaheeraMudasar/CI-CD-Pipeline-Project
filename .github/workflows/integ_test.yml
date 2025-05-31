@@ -1,0 +1,32 @@
+name: Integration tests
+
+on:
+  # TODO: Kör integ-tester på alla PR mot main
+  # TODO: Kör integ-tester även vid push till main
+
+jobs:
+  integ-test:
+    name: integ-test # Det här namnet syns under ”Required status checks”
+    runs-on: ubuntu-latest
+
+    steps:
+      # TODO: 1) Checka ut koden
+
+      # TODO: 2) Installera rätt Python-version
+
+      # TODO: 3) Installera beroenden
+
+      # TODO: 4) Starta localstack
+
+      - name: Vänta på att LocalStack är redo
+        run: |
+          until curl -s http://localhost:4566/health | grep '"dynamodb": *{"status": *"running"}'; do
+            echo "Väntar på LocalStack..."
+            sleep 3
+          done
+
+      # TODO: 5) Initiera DDB-tabeller (infra/local/init.py)
+
+      # TODO: 6) Kör alla integrationstest
+
+      # TODO: 7) Stoppa docker

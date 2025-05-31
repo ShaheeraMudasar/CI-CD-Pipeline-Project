@@ -1,74 +1,107 @@
 from typing import Optional
+import boto3
+from botocore.exceptions import ClientError
+from datetime import datetime, timezone
 
-from app.env import feature_ddb_enabled
+from app.env import feature_ddb_enabled, get_aws_credentials
 from app.models import PostIn, PostListItem, PostOut
 
-WIP_IMAGE_URL = "https://www.pngkey.com/png/full/862-8620381_work-in-progress-sign.png"
+TABLE_NAME = "DevOps1_Posts"
 
 
 class DynamoClient:
     """
-    Mockad klient för att interagera med blogginlägg via en in-memory databas.
+    DynamoDB klient för att interagera med blogginlägg.
     """
 
     def __init__(self):
-        self._posts = {
-            "1": PostOut(
-                id="1", title="Mockad post 1", image_url=WIP_IMAGE_URL, image_text="Bild 1"
-            ),
-            "2": PostOut(
-                id="2", title="Mockad post 2", image_url=WIP_IMAGE_URL, image_text="Bild 2"
-            ),
-        }
-        self._nextPostId = 3
+        self._dynamodb = boto3.resource("dynamodb", **get_aws_credentials())
+        self._table = self._dynamodb.Table(TABLE_NAME)
 
-    async def list_posts(self) -> list[PostOut]:
+    def list_posts(self) -> list[PostListItem]:
         """
         Returnerar lista med alla inlägg.
         """
-        if not feature_ddb_enabled():
-            return [PostListItem(id=post.id, title=post.title) for post in self._posts.values()]
+        response = self._table.scan()
+        items = response.get("Items", [])
+        # Sortera items på created_at i stigande ordning (äldst först)
+        items_sorted = sorted(
+            items,
+            key=lambda x: x.get("created_at", "")
+        )
+        posts = []
+        for item in items_sorted:
+            posts.append(
+                PostListItem(
+                    id=item["id"],
+                    title=item["title"]
+                )
+            )
+        return posts
 
-        raise NotImplementedError
-
-    async def get_post(self, post_id: str) -> Optional[PostOut]:
+    def get_post(self, post_id: str) -> Optional[PostOut]:
         """
         Hämta ett inlägg via dess ID.
         """
-        if not feature_ddb_enabled():
-            return self._posts.get(post_id)
+        try:
+            response = self._table.get_item(Key={"id": post_id})
+        except ClientError:
+            return None
+        item = response.get("Item")
+        if not item:
+            return None
+        return PostOut(
+            id=item["id"],
+            title=item["title"],
+            image_url=item.get("image_url"),
+            image_text=item.get("image_text"),
+            created_at=datetime.fromisoformat(item["created_at"]),
+        )
 
-        raise NotImplementedError
-
-    async def create_post(self, post: PostIn) -> str:
+    def create_post(self, post: PostIn) -> str:
         """
-        Skapa ett nytt inlägg (mockat: lägg till i in-memory databas).
+        Skapa ett nytt inlägg i DynamoDB.
         """
-        if not feature_ddb_enabled():
-            new_id = str(self._nextPostId)
-            self._nextPostId += 1
-            self._posts[new_id] = PostOut(id=new_id, **post.dict())
-            return new_id
+        now = datetime.now(timezone.utc)
+        post_id = now.strftime("%Y%m%d%H%M%S%f") # exempel: 20250520153045012345
+        now_iso = now.isoformat() # exempel: 2025-05-21T14:33:07.123456+00:00
+        item = {
+            "id": post_id,
+            "title": post.title,
+            "image_url": post.image_url,
+            "image_text": post.image_text,
+            "created_at": now_iso,
+        }
+        self._table.put_item(Item=item)
+        return post_id
 
-        raise NotImplementedError
-
-    async def delete_post(self, post_id: str) -> bool:
+    def delete_post(self, post_id: str) -> bool:
         """
         Ta bort ett inlägg via dess ID.
         """
-        if not feature_ddb_enabled():
-            return self._posts.pop(post_id, None) is not None
+        try:
+            response = self._table.delete_item(
+                Key={"id": post_id},
+                ConditionExpression="attribute_exists(id)",
+            )
+            return True
+        except ClientError as e:
+            if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
+                return False
+            raise
 
-        raise NotImplementedError
-
-
-# Skapa EN instans här, direkt i modulen
-_dynamo_client = DynamoClient()
-
+# en enda instans som återanvänds
+_dynamo_client = None
 
 def get_dynamo_client() -> DynamoClient:
     """
-    Returnerar alltid samma DynamoClient-instans, så att state bevaras
-    över flera anrop.
+    Returnerar DynamoClient-instans. Om mock är aktiverat, returnera mock-klienten.
     """
-    return _dynamo_client
+    if feature_ddb_enabled():
+        global _dynamo_client
+        if _dynamo_client is None:
+            _dynamo_client = DynamoClient()
+        return _dynamo_client
+    else:
+        from app.storage.ddb_mock import get_mock_dynamo_client
+        return get_mock_dynamo_client()

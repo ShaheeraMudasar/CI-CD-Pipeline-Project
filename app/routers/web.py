@@ -21,7 +21,7 @@ start_time = time.time()
 async def index(request: Request):
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     db = get_dynamo_client()
-    posts = await db.list_posts()
+    posts = db.list_posts()
     return templates.TemplateResponse(
         "index.html", {"request": request, "timestamp": now, "posts": posts}
     )
@@ -49,7 +49,7 @@ def get_uptime() -> str:
 @router.get("/posts/{post_id}", response_class=HTMLResponse)
 async def view_post(request: Request, post_id: str):
     db = get_dynamo_client()
-    post = await db.get_post(post_id)
+    post = db.get_post(post_id)
     if not post:
         return HTMLResponse(status_code=404, content="Post not found")
 
@@ -62,7 +62,7 @@ async def admin_panel(request: Request):
         raise HTTPException(status_code=403, detail="Adminfunktionalitet är avstängd")
 
     db = get_dynamo_client()
-    posts = await db.list_posts()
+    posts = db.list_posts()
     return templates.TemplateResponse(
         "admin.html", {"request": request, "error": None, "posts": posts}
     )
@@ -86,7 +86,7 @@ async def create_post_from_form(
 
     post_data = PostIn(title=title, image_url=image_url, image_text=image_text)
     db = get_dynamo_client()
-    await db.create_post(post_data)
+    db.create_post(post_data)
     return RedirectResponse("/", status_code=302)
 
 
@@ -103,7 +103,7 @@ async def delete_post_from_form(
         )
 
     db = get_dynamo_client()
-    await db.delete_post(post_id)
+    db.delete_post(post_id)
     return RedirectResponse("/", status_code=302)
 
 
