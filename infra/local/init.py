@@ -1,6 +1,5 @@
 import boto3
 
-
 def create_table():
     endpoint_url = "http://localhost:4566"
     table_name = "DevOps1_Posts"

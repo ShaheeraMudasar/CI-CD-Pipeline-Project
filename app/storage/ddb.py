@@ -1,5 +1,8 @@
 from datetime import datetime, timezone
 from typing import Optional
+import boto3
+from botocore.exceptions import ClientError
+from datetime import datetime, timezone
 
 import boto3
 from botocore.exceptions import ClientError
@@ -88,6 +91,8 @@ class DynamoClient:
 # en enda instans som återanvänds
 _dynamo_client = None
 
+# en enda instans som återanvänds
+_dynamo_client = None
 
 def get_dynamo_client() -> DynamoClient:
     """
