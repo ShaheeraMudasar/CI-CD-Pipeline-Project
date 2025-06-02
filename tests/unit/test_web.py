@@ -1,5 +1,5 @@
 import subprocess
-from unittest.mock import AsyncMock, patch
+from unittest.mock import Mock, AsyncMock, patch
 
 # from app.routers.web import index, get_uptime
 import pytest
@@ -18,7 +18,7 @@ async def test_index_returns_template_response():
     mock_posts = [{"id": "1", "title": "Test"}]
 
     with patch("app.routers.web.get_dynamo_client") as mock_client:
-        mock_client.return_value.list_posts = AsyncMock(return_value=mock_posts)
+        mock_client.return_value.list_posts = Mock(return_value=mock_posts)
 
         response = await web.index(mock_request)
 
@@ -67,7 +67,7 @@ async def test_view_post_returns_template_for_valid_post():
     mock_request = Request(scope={"type": "http"})
     fake_post = {"id": "1", "title": "Test Post"}
     with patch("app.routers.web.get_dynamo_client") as mock_client:
-        mock_client.return_value.get_post = AsyncMock(return_value=fake_post)
+        mock_client.return_value.get_post = Mock(return_value=fake_post)
 
         # WHEN view post function is called
         response = await web.view_post(mock_request, "1")
@@ -83,7 +83,7 @@ async def test_view_post_returns_404_for_missing_post():
     # GIVEN a http request is made to view a post but post is not available
     mock_request = Request(scope={"type": "http"})
     with patch("app.routers.web.get_dynamo_client") as mock_client:
-        mock_client.return_value.get_post = AsyncMock(return_value=None)
+        mock_client.return_value.get_post = Mock(return_value=None)
 
         # WHEN view post is called
         response = await web.view_post(mock_request, "nonexistent")
@@ -102,7 +102,7 @@ async def test_admin_panel_shows_admin_web_page():
         patch("app.routers.web.feature_admin_enabled", return_value=True),
         patch("app.routers.web.get_dynamo_client") as mock_client,
     ):
-        mock_client.return_value.list_posts = AsyncMock(return_value=fake_post)
+        mock_client.return_value.list_posts = Mock(return_value=fake_post)
         # WHEN admin panel is called
         response = await web.admin_panel(mock_request)
         # THEN it shows the admin panel's webpage
@@ -134,7 +134,7 @@ async def test_create_post_from_form_redirects_on_success():
         patch("app.routers.web.get_admin_password", return_value="admin123"),
         patch("app.routers.web.get_dynamo_client") as mock_client,
     ):
-        mock_client.return_value.create_post = AsyncMock()
+        mock_client.return_value.create_post = Mock()
 
         # WHEN a new post is requested to be created
         response = await web.create_post_from_form(
@@ -171,7 +171,7 @@ async def test_delete_post_from_form_redirects_on_success():
         patch("app.routers.web.get_admin_password", return_value="admin123"),
         patch("app.routers.web.get_dynamo_client") as mock_client,
     ):
-        mock_client.return_value.delete_post = AsyncMock(return_value=True)
+        mock_client.return_value.delete_post = Mock(return_value=True)
 
         # WHEN delete post is called
         response = await web.delete_post_from_form(request, password="admin123", post_id="1")
