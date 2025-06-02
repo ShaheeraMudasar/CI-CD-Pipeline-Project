@@ -1,5 +1,5 @@
 import subprocess
-from unittest.mock import Mock, AsyncMock, patch
+from unittest.mock import Mock, patch
 
 # from app.routers.web import index, get_uptime
 import pytest
