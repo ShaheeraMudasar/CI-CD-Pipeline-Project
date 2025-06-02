@@ -1,10 +1,10 @@
 import boto3
-import pytest
-from hamcrest import assert_that, equal_to, is_, contains_string
+from hamcrest import assert_that, contains_string, equal_to, is_
 
 from app.env import feature_ddb_enabled, get_aws_credentials
 
 TABLE_NAME = "DevOps1_Posts"
+
 
 def test_feature_ddb_flag_is_enabled():
     # GIVEN att environment har laddats

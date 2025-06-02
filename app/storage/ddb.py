@@ -1,7 +1,8 @@
+from datetime import datetime, timezone
 from typing import Optional
+
 import boto3
 from botocore.exceptions import ClientError
-from datetime import datetime, timezone
 
 from app.env import feature_ddb_enabled, get_aws_credentials
 from app.models import PostIn, PostListItem, PostOut
@@ -25,18 +26,10 @@ class DynamoClient:
         response = self._table.scan()
         items = response.get("Items", [])
         # Sortera items på created_at i stigande ordning (äldst först)
-        items_sorted = sorted(
-            items,
-            key=lambda x: x.get("created_at", "")
-        )
+        items_sorted = sorted(items, key=lambda x: x.get("created_at", ""))
         posts = []
         for item in items_sorted:
-            posts.append(
-                PostListItem(
-                    id=item["id"],
-                    title=item["title"]
-                )
-            )
+            posts.append(PostListItem(id=item["id"], title=item["title"]))
         return posts
 
     def get_post(self, post_id: str) -> Optional[PostOut]:
@@ -63,8 +56,8 @@ class DynamoClient:
         Skapa ett nytt inlägg i DynamoDB.
         """
         now = datetime.now(timezone.utc)
-        post_id = now.strftime("%Y%m%d%H%M%S%f") # exempel: 20250520153045012345
-        now_iso = now.isoformat() # exempel: 2025-05-21T14:33:07.123456+00:00
+        post_id = now.strftime("%Y%m%d%H%M%S%f")  # exempel: 20250520153045012345
+        now_iso = now.isoformat()  # exempel: 2025-05-21T14:33:07.123456+00:00
         item = {
             "id": post_id,
             "title": post.title,
@@ -84,14 +77,17 @@ class DynamoClient:
                 Key={"id": post_id},
                 ConditionExpression="attribute_exists(id)",
             )
+            _ = response  # 👈 This tells the linter: "I know it's unused — on purpose"
             return True
         except ClientError as e:
             if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
                 return False
             raise
 
+
 # en enda instans som återanvänds
 _dynamo_client = None
+
 
 def get_dynamo_client() -> DynamoClient:
     """
@@ -102,6 +98,6 @@ def get_dynamo_client() -> DynamoClient:
         if _dynamo_client is None:
             _dynamo_client = DynamoClient()
         return _dynamo_client
-    else:
-        from app.storage.ddb_mock import get_mock_dynamo_client
-        return get_mock_dynamo_client()
+    from app.storage.ddb_mock import get_mock_dynamo_client
+
+    return get_mock_dynamo_client()

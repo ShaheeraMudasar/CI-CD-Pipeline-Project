@@ -30,15 +30,19 @@ def _get_env_var(env_var_name: str, default: Optional[str]) -> str:
 # Getters för miljövariabler
 ############################
 
+
 def get_admin_password(default: str = "admin1234") -> str:
     """Fetch the admin password from env, or default."""
     return _get_env_var("ADMIN_PASSWORD", default)
 
+
 def get_aws_region() -> str:
     return _get_env_var("AWS_REGION", "us-east-1")
 
+
 def get_aws_endpoint_url() -> Optional[str]:
     return _get_env_var("AWS_ENDPOINT_URL", "http://localhost:4566")
+
 
 def get_aws_credentials() -> dict:
     return {

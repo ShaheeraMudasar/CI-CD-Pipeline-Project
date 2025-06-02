@@ -1,5 +1,6 @@
 import boto3
 
+
 def create_table():
     endpoint_url = "http://localhost:4566"
     table_name = "DevOps1_Posts"
@@ -23,10 +24,12 @@ def create_table():
         AttributeDefinitions=[{"AttributeName": "id", "AttributeType": "S"}],
         KeySchema=[{"AttributeName": "id", "KeyType": "HASH"}],
         ProvisionedThroughput={
-          "ReadCapacityUnits": 5,
-          "WriteCapacityUnits": 5,
-        })
+            "ReadCapacityUnits": 5,
+            "WriteCapacityUnits": 5,
+        },
+    )
     print(f"Table '{table_name}' created.")
+
 
 if __name__ == "__main__":
     create_table()
