@@ -18,7 +18,7 @@ jobs:
       FEATURE_DDB: ${{ secrets.FEATURE_DDB }}
       FEATURE_ADMIN: ${{ secrets.FEATURE_ADMIN }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }} 
-      
+
     steps:
 
       # TODO: 1) Checka ut koden
@@ -56,7 +56,7 @@ jobs:
 
       # TODO: 6) Kör alla integrationstest
       - name: kör alla integration tester
-        run: pytest tests/integration
+        run: pytest tests/integration -p no:cov
 
       # TODO: 7) Stoppa docker
       - name: stoppa docker
