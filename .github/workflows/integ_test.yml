@@ -37,10 +37,6 @@ jobs:
       - name: start localstack
         run: docker compose up -d
 
-      # TODO: 5) Initiera DDB-tabeller (infra/local/init.py)
-      - name: initiera dynamoDB-tabeler
-        run: python infra/local/init.py
-
       # Stepet väntar på att localstack är redo först 
       - name: Vänta på att LocalStack är redo
         run: |
@@ -48,6 +44,11 @@ jobs:
             echo "Väntar på LocalStack..."
             sleep 3
           done
+
+
+      # TODO: 5) Initiera DDB-tabeller (infra/local/init.py)
+      - name: initiera dynamoDB-tabeler
+        run: python infra/local/init.py
 
       # TODO: 6) Kör alla integrationstest
       - name: kör alla integration tester
