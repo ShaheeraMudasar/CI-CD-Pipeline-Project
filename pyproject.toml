@@ -46,6 +46,7 @@ omit = [
   "app/env.py",
   "app/main.py",
   "app/models.py"
+  "tests/integration"
 ] 
 
 [tool.coverage.report]
