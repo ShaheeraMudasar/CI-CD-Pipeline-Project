@@ -1,18 +1,14 @@
-import boto3
-from hamcrest import assert_that, contains_string, equal_to, is_
+from hamcrest import assert_that, equal_to
 
-from app.storage.ddb import DynamoClient
 from app.models import PostIn
+from app.storage.ddb import DynamoClient
+
 
 def test_delete_post_from_db():
     client = DynamoClient()
     posts = len(client.list_posts())
 
-    post = PostIn(
-        title = "title_test_post",
-        image_url = "testurl.com",
-        image_text = "test_text"
-    )
+    post = PostIn(title="title_test_post", image_url="testurl.com", image_text="test_text")
 
     post_id = client.create_post(post)
 
