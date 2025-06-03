@@ -2,22 +2,42 @@ name: Integration tests
 
 on:
   # TODO: Kör integ-tester på alla PR mot main
+  pull_request:
+    branches:
+    - main 
   # TODO: Kör integ-tester även vid push till main
+  push:
+    branches:
+    - main 
 
 jobs:
   integ-test:
-    name: integ-test # Det här namnet syns under ”Required status checks”
+    name: integ-test # Bara ett namn
     runs-on: ubuntu-latest
 
     steps:
-      # TODO: 1) Checka ut koden
 
+      # TODO: 1) Checka ut koden
+      - name: checkout repo
+        uses: actions/checkout@v4
       # TODO: 2) Installera rätt Python-version
+      - name: install python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
 
       # TODO: 3) Installera beroenden
+      - name: install requirment
+        run:
+          python -m pip install --uppgrade pip
+          pip install -r requirements-dev.txt;
+          pip install -r requirements.txt;
 
       # TODO: 4) Starta localstack
+      - name: start localstack
+        run: docker-compose upp -d
 
+      # Stepet väntar på att localstack är redo först 
       - name: Vänta på att LocalStack är redo
         run: |
           until curl -s http://localhost:4566/health | grep '"dynamodb": *{"status": *"running"}'; do
@@ -26,7 +46,13 @@ jobs:
           done
 
       # TODO: 5) Initiera DDB-tabeller (infra/local/init.py)
+      - name: initiera dynamoDB-tabeler
+        run: python infra/local/init.py
 
       # TODO: 6) Kör alla integrationstest
+      - name: kör alla integration tester
+        run: pytest test/integration
 
       # TODO: 7) Stoppa docker
+      - name: stoppa docker
+        run: docker down
