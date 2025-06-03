@@ -52,7 +52,7 @@ jobs:
 
       # TODO: 6) Kör alla integrationstest
       - name: kör alla integration tester
-        run: pytest test/integration
+        run: pytest tests/integration
 
       # TODO: 7) Stoppa docker
       - name: stoppa docker
