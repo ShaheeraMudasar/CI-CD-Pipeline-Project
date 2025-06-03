@@ -14,7 +14,11 @@ jobs:
   integ-test:
     name: integ-test # Bara ett namn
     runs-on: ubuntu-latest
-
+    env:
+      FEATURE_DDB: ${{ secrets.FEATURE_DDB }}
+      FEATURE_ADMIN: ${{ secrets.FEATURE_ADMIN }}
+      ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }} 
+      
     steps:
 
       # TODO: 1) Checka ut koden
