@@ -60,4 +60,4 @@ jobs:
 
       # TODO: 7) Stoppa docker
       - name: stoppa docker
-        run: docker down
+        run: docker compose down
