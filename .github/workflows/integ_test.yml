@@ -56,7 +56,7 @@ jobs:
 
       # TODO: 6) Kör alla integrationstest
       - name: kör alla integration tester
-        run: pytest tests/integration -p no:cov
+        run: pytest --no-cov tests/integration
 
       # TODO: 7) Stoppa docker
       - name: stoppa docker
