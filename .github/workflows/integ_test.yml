@@ -35,7 +35,7 @@ jobs:
 
       # TODO: 4) Starta localstack
       - name: start localstack
-        run: docker-compose upp -d
+        run: docker compose up -d
 
       # Stepet väntar på att localstack är redo först 
       - name: Vänta på att LocalStack är redo
