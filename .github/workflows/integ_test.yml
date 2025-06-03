@@ -40,7 +40,7 @@ jobs:
       # Stepet väntar på att localstack är redo först 
       - name: Vänta på att LocalStack är redo
         run: |
-          until curl -s http://localhost:4566/_localstack/health | grep '"dynamodb": *"running"'; do
+          until curl -s http://localhost:4566/_localstack/health | grep -E '"dynamodb": *"(available|running)"'; do
             echo "Väntar på LocalStack..."
             sleep 3
           done
