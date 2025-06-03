@@ -1,17 +1,17 @@
-import boto3
-from hamcrest import assert_that, contains_string, equal_to, is_
+from hamcrest import assert_that, equal_to
 
-from app.storage.ddb import DynamoClient
 from app.models import PostIn
+from app.storage.ddb import DynamoClient
+
 
 def test_create_post_adds_post_in_db():
     # GIVEN post details are given
     post = PostIn(
-            id = "test_post_id",
-            title = "test_post_title",
-            image_url = "https://hereismyimage.com",
-            image_text = "test_image",
-        )
+        id="test_post_id",
+        title="test_post_title",
+        image_url="https://hereismyimage.com",
+        image_text="test_image",
+    )
 
     client = DynamoClient()
     posts = client.list_posts()
@@ -25,4 +25,4 @@ def test_create_post_adds_post_in_db():
 
     # THEN it returns the list's size is increased by one
 
-    assert_that (size_after, equal_to(size_before+1))
+    assert_that(size_after, equal_to(size_before + 1))
