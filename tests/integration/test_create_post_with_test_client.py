@@ -27,7 +27,7 @@ def test_create_post_adds_post_in_db():
 
     response = client.post("admin/create", data=form_data, follow_redirects=False)
 
-    # THEN it returns redirecting status code 302 and checks if the new post exists in db
+    # THEN it checks status and if the new post exists in db
     assert_that(response.status_code, equal_to(302))
 
     posts = db.list_posts()
