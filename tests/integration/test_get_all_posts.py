@@ -1,4 +1,4 @@
-from hamcrest import assert_that, equal_to, contains_inanyorder
+from hamcrest import assert_that, equal_to
 
 from app.models import PostIn
 from app.storage.ddb import DynamoClient
