@@ -8,9 +8,8 @@ from app.storage.ddb import DynamoClient
 
 
 def test_create_post_adds_post_in_db():
-    
-    # GIVEN post details are given 
-    
+    # GIVEN post details are given
+
     client = TestClient(app)
     db = DynamoClient()
 
