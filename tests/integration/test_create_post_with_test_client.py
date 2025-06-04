@@ -8,7 +8,9 @@ from app.storage.ddb import DynamoClient
 
 
 def test_create_post_adds_post_in_db():
-    # GIVEN post details are given
+    
+    # GIVEN post details are given 
+    
     client = TestClient(app)
     db = DynamoClient()
 
@@ -21,8 +23,11 @@ def test_create_post_adds_post_in_db():
         "image_text": "test_image",
     }
 
+    # WHEN try to create new post through route admin/create
+
     response = client.post("admin/create", data=form_data, follow_redirects=False)
 
+    # THEN it returns redirecting status code 302 and checks if the new post exists in db
     assert_that(response.status_code, equal_to(302))
 
     posts = db.list_posts()

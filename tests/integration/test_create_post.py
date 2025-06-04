@@ -1,41 +1,28 @@
 from hamcrest import assert_that, equal_to
-from fastapi.testclient import TestClient
 
 from app.models import PostIn
 from app.storage.ddb import DynamoClient
-from app.start import app
 
 
 def test_create_post_adds_post_in_db():
     # GIVEN post details are given
-    client = TestClient(app)
-    db = DynamoClient()
+    post = PostIn(
+        id="test_post_id",
+        title="test_post_title",
+        image_url="https://hereismyimage.com",
+        image_text="test_image",
+    )
 
-    form_data = {
-        "password": "admin123",
-        "title" : "unique_test_post",
-        "image_url": "https://test.com/image",
-        "image_text": "test_image" 
-     }
-    
-    response = client.post("admin/create", data=form_data, follow_redirects= False)
+    client = DynamoClient()
+    posts = client.list_posts()
+    size_before = len(posts)
 
-    assert_that (response.status_code, equal_to(302))
+    # WHEN attempted to create a new post
 
-    posts = db.list_posts()
-    matched_post = [p for p in posts if p.title == "unique_test_post"]
-    assert_that(len(matched_post), equal_to(1))
+    client.create_post(post)
 
-    # client = DynamoClient()
-    # posts = client.list_posts()
-    # size_before = len(posts)
+    size_after = len(client.list_posts())
 
-    # # WHEN attempted to create a new post
+    # THEN it returns the list's size is increased by one
 
-    # client.create_post(post)
-
-    # size_after = len(client.list_posts())
-
-    # # THEN it returns the list's size is increased by one
-
-    # assert_that(size_after, equal_to(size_before + 1))
+    assert_that(size_after, equal_to(size_before + 1))
