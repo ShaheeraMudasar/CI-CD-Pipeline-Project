@@ -38,7 +38,6 @@ def test_create_post_and_get_post_with_id():
     # WHEN we use that post_id to get a specific post
 
     post = client.get_post(post_id)
-    print(post)
 
     # THEN we should get the post in return
 
