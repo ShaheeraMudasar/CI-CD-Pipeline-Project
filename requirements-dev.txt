@@ -4,17 +4,15 @@
 #
 #    pip-compile requirements-dev.in
 #
-anyio==4.9.0
-    # via httpx
-build==1.2.2.post1
+build==1.3.0
     # via pip-tools
-certifi==2025.4.26
-    # via
-    #   httpcore
-    #   httpx
-click==8.2.0
+certifi==2025.8.3
+    # via requests
+charset-normalizer==3.4.2
+    # via requests
+click==8.2.1
     # via pip-tools
-coverage[toml]==7.8.0
+coverage[toml]==7.10.2
     # via pytest-cov
 h11==0.16.0
     # via httpcore
@@ -26,15 +24,20 @@ idna==3.10
     # via
     #   anyio
     #   httpx
+    #   requests
 iniconfig==2.1.0
     # via pytest
 packaging==25.0
     # via
     #   build
     #   pytest
-pip-tools==7.4.1
+pip-tools==7.5.0
     # via -r requirements-dev.in
-pluggy==1.5.0
+pluggy==1.6.0
+    # via
+    #   pytest
+    #   pytest-cov
+pygments==2.19.2
     # via pytest
 pyhamcrest==2.1.0
     # via -r requirements-dev.in
@@ -42,21 +45,25 @@ pyproject-hooks==1.2.0
     # via
     #   build
     #   pip-tools
-pytest==8.3.5
+pytest==8.4.1
     # via
     #   -r requirements-dev.in
     #   pytest-asyncio
     #   pytest-cov
-pytest-asyncio==0.26.0
+pytest-asyncio==1.1.0
     # via -r requirements-dev.in
-pytest-cov==6.1.1
+pytest-cov==6.2.1
     # via -r requirements-dev.in
-ruff==0.11.9
+requests==2.32.4
     # via -r requirements-dev.in
 sniffio==1.3.1
     # via anyio
 typing-extensions==4.13.2
     # via anyio
+ruff==0.12.7
+    # via -r requirements-dev.in
+urllib3==2.5.0
+    # via requests
 wheel==0.45.1
     # via pip-tools
 

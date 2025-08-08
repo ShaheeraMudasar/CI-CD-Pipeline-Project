@@ -1,0 +1,128 @@
+name: Deploy to Dev Environment
+
+on:
+  workflow_run:
+    workflows: ["Integration tests"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  deploy-to-dev:
+    name: Deploy to Dev Environment
+    runs-on: ubuntu-latest
+    if: ${{ (github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch') && vars.DEPLOY_ENABLED == 'true' }}
+
+    steps:
+      # 1. Checka ut kod & Konfigurera AWS
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/devops1-GitHubWorkflow
+          role-session-name: GitHubActions-DeployToDev
+          aws-region: us-east-1
+
+      # 2. Kör Bootstrap-skript (skapar tf backend-resurser & ECR om de inte finns)
+      - name: Create backend infrastructure
+        env:
+          AWS_ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          chmod +x infra/create-tfstate-backend.sh
+          ./infra/create-tfstate-backend.sh
+
+      - name: Create ECR repository
+        run: |
+          chmod +x infra/create-ecr.sh
+          ./infra/create-ecr.sh
+
+      # 3. Generera Image Tag (från GITHUB_SHA) och pusha till ECR
+      - name: Set image metadata
+        id: meta
+        run: echo "image_tag=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker image
+        run: |
+          ECR_REPOSITORY="${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/devops1-blog-app"
+          docker build -t "$ECR_REPOSITORY:${{ steps.meta.outputs.image_tag }}" .
+          docker push "$ECR_REPOSITORY:${{ steps.meta.outputs.image_tag }}"
+
+      # 4. Sätt upp & Kör OpenTofu Apply
+      - name: Install OpenTofu
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Initialize Terraform backend
+        working-directory: infra
+        run: |
+          tofu init \
+            -backend-config="bucket=devops1-tfstate-${{ vars.AWS_ACCOUNT_ID }}"
+
+      - name: Plan infrastructure changes
+        id: plan
+        working-directory: infra
+        # TODO: 1. Skicka alla nödvändiga variabler som behövs av Terraform (se infra/variables.tf).
+        # Använd -var flaggan för att skicka värden från GitHub Variables (vars.*)
+        # och Secrets (secrets.*) till Terraform.
+        # Referenser:
+        # - https://opentofu.org/docs/language/values/variables/#variables-on-the-command-line
+        # - https://docs.github.com/en/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables
+        run: |
+          tofu plan \
+            -var="image_tag=${{ steps.meta.outputs.image_tag }}" \
+            -out=tfplan
+
+      - name: Apply infrastructure changes
+        working-directory: infra
+        run: tofu apply -auto-approve tfplan
+
+      # 5. Övervaka & Testa
+      - name: Get Infrastructure Outputs
+        id: infra_outputs
+        working-directory: infra
+        run: |
+          echo "apprunner_url=$(tofu output -raw apprunner_service_url)" >> $GITHUB_OUTPUT
+          echo "apprunner_arn=$(tofu output -raw apprunner_service_arn)" >> $GITHUB_OUTPUT
+
+      - name: Monitor AppRunner deployment
+        run: |
+          chmod +x infra/monitor-apprunner-deploy.sh
+          ./infra/monitor-apprunner-deploy.sh "${{ steps.infra_outputs.outputs.apprunner_arn }}"
+
+      # 6. Kör System/E2E-tester (mot driftsatt URL)
+      - name: Setup Python for E2E tests
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements-dev.txt
+
+      # TODO: 2. Sätt miljövariablerna som dina tester behöver.
+      # Titta på testkoden och se vilka miljövärden den behöver och
+      # se till att exekveringen av detta workflow-steg sätter miljövariabelvärdena.
+      # Referenser:
+      # - https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#env
+      # - https://guywaldman.com/tidbits/github-actions-step-outputs
+      - name: Run E2E tests
+        run: pytest tests/system -v
+
+      # 7. Tagga Release
+      - name: Tag successful deployment
+        if: success()
+        run: |
+          TAG_NAME="deploy-dev-${{ steps.meta.outputs.image_tag }}-$(date +%Y%m%d-%H%M%S)"
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+          echo "Created deployment tag: $TAG_NAME"
+
+      - name: Summary
+        run: |
+          echo "Dev infrastructure deployed!"
+          echo "You can reach the app at https://${{ steps.infra_outputs.outputs.apprunner_url }}"

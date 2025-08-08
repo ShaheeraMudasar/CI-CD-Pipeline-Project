@@ -38,6 +38,11 @@ def create_app() -> FastAPI:
     All mounting, router-registration, and route definitions happen here.
     """
     app = FastAPI(title="DevOps1-bloggen")
+
+    @app.on_event("startup")
+    async def startup_event():
+        print("[STARTUP] FastAPI server ready on port 8000")
+
     _register_routers(app)
     _mount_static_files(app)
     _register_misc_routes(app)

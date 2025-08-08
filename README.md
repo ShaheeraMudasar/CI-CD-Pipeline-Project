@@ -13,94 +13,88 @@ Läs mer om målen och kraven för varje sprint:
 - [Sprint 1: Pull Requests, Lintning & Code Review](docs/sprint1.md)
 - [Sprint 2: Enhetstester och testtäckning](docs/sprint2.md)
 - [Sprint 3: Integrationstester med hjälp av Localstack](docs/sprint3.md)
+- [Sprint 4: Deployment & variabler](docs/sprint4.md)
 
-### Nyheter i appen och koden för sprint 3
+### Sprint 4: Från Integration till Driftsättning (`Deploy to Dev`)
 
-Appen har nu uttökats med riktig DynamoDB-kod. För att kunna köra denna lokalt har vi lagt till Localstack som körs i Docker. Appen kan nu alltså köras både med mockad databas och med riktig DynamoDB via Localstack. Funktionaliteten styrs via miljövariabler och feature flags.
+I de tidigare sprintarna har vi byggt en robust **CI-pipeline (Continuous Integration)**. Den har automatiskt verifierat att vår kod är korrekt formaterad, att enhetstester passerar och att integrationen med databasen fungerar som den ska. Målet har varit att tryggt kunna slå ihop (integrera) kod från flera utvecklare till vår `main`-branch.
 
-Localstack är ett verktyg som emulerar AWS-tjänster lokalt, så att du kan utveckla och testa applikationer utan att använda riktiga AWS-resurser. Du kan läsa mer om Localstack här: https://docs.localstack.cloud/getting-started/
+Men en applikation som bara finns på GitHub är inte till mycket nytta. I Sprint 4 tar vi nästa logiska steg: **Continuous Delivery/Deployment**. Vi utökar vår pipeline så att den inte bara testar koden, utan också automatiskt paketerar och driftsätter den till en live-miljö i molnet. Detta är det sista, avgörande steget för att leverera värde till våra användare.
 
-Summering av vad som är nytt i projektet i denna sprint:
+Vi gör detta i en säker, isolerad **`dev`-miljö**. Detta är teamets gemensamma sandlåda i AWS, en plats där vi kan se vår applikation fungera "på riktigt" för första gången, utan att riskera att påverka några slutanvändare.
 
-- `.env.example` har utökats med miljövariabler för att köra mot Localstack:
-  - `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, `AWS_ENDPOINT_URL`
-  - Sätt `FEATURE_DDB=True` i din .env-fil om du vill köra appen med den riktiga DynamoDB-koden istället för att använda den mockade databasen.
-- Ny Docker Compose-fil: [`docker-compose.yml`](./docker-compose.yml)
-  - Startar Localstack med DynamoDB
-- `Makefile`:
-  - Nytt kommando `make dev-local`: startar appen efter att Localstack initierats
-  - `make test-integ`: kör integrationstest mot Localstack utan coverage
-- Ny Github Actions-fil: [.github/workflows/integ_test.yml](./.github/workflows/integ_test.yml)
-  - Förberedd för att automatiskt köra integrationstester i pipeline
-  - Innehåller `TODO`-sektioner att fyllas i
-- Uppdaterad [app/env.py](./app/env.py): hanterar AWS credentials och endpoint för att köra mot Localstack
-- [app/routers/web.py](./app/routers/web.py): ändrat från `await` till synkron kod eftersom inga async-operationer används längre
-- [app/storage/ddb.py](./app/storage/ddb.py): ny implementation som använder boto3 och stöd för att köra mot Localstack eller riktig AWS
-- Ny fil: [app/storage/ddb_mock.py](./app/storage/ddb_mock.py)
-  - Tidigare mockad databas har flyttats hit
-- Ny fil: [infra/local/init.py](./infra/local/init.py)
-  - Python-skript som initierar DynamoDB-tabellen i Localstack
-- Ny fil: [tests/integration/test_localstack_and_ddb_table.py](./tests/integration/test_localstack_and_ddb_table.py)
-  - Test som kollar att Localstack är startat och korrekt initierat
+#### AWS AppRunner: Motorn i vår infrastruktur
 
-### Nyheter i appen och koden för sprint 2
+För att köra vår applikation i AWS använder vi en tjänst som heter **AWS AppRunner**. Man kan tänka på AppRunner som en "motor" för webbapplikationer. Istället för att vi själva måste hantera servrar, nätverk och operativsystem, säger vi bara till AppRunner: "Här är min applikation, se till att den körs och är tillgänglig på internet."
 
-Appen fungerar nu som en enklare blogg där man kan:
+AppRunner är byggd för att köra **containeriserade applikationer**. Det är här Docker och ECR kommer in i bilden:
 
-- `/`: Visa alla blogginlägg på startsidan
-  - Klicka in på ett specifikt inlägg via sin titel (`/posts/{id}`)
-- `/admin`: man kan skapa eller ta bort inlägg (kräver lösenord)
+1.  **`Dockerfile`**: Detta är vår ritning som beskriver hur vår Python-applikation och alla dess beroenden ska paketeras till en standardiserad "låda" – en **Docker-image**. Denna image innehåller allt appen behöver för att köra, oavsett var den körs.
+2.  **AWS ECR (Elastic Container Registry)**: Detta är vårt privata bibliotek i molnet där vi lagrar våra Docker-images. Man kan se det som ett "GitHub för Docker-images". Vår pipeline kommer att bygga en image och "pusha" upp den till ECR.
+3.  **AWS AppRunner**: Slutligen instruerar vi AppRunner att hämta en specifik image från vårt ECR-bibliotek och köra den. AppRunner sköter sedan allt: den startar containern, ser till att den har tillräckligt med minne och CPU, och skapar en publik URL så att vi kan nå appen.
 
-Data lagras för tillfället i en in-memory mockdatabas, vilket gör det enkelt att komma igång utan riktig databas (som kommer senare).
+**Sammanfattning av flödet:**
+`Dockerfile` → `Docker Image` → `AWS ECR` → `AWS AppRunner`
 
-#### Testning och testtäckning
+> **Läs mer:**
+>
+> - [AWS AppRunner, arkitektur och koncept (Officiell översikt)](https://docs.aws.amazon.com/apprunner/latest/dg/architecture.html)
+> - [Vad är en Container? (Dockers förklaring)](https://www.docker.com/resources/what-container/)
+> - [Vad är AWS ECR? (Officiell översikt)](https://aws.amazon.com/ecr/)
 
-- Enhetstestning har förberetts:
-  - [pytest-cov](https://pytest-cov.readthedocs.io/) har lagts till som utvecklingsberoende
-- Code coverage rapportering i HTML-format är konfigurerad i [pyproject.toml](.pyproject.toml)
-  - [ddb.py](./app/storage/ddb.py) och [start.py](./app/start.py) exkluderas eftersom den koden inte behöver testas
+#### Säkerhet i vår Pipeline: Hur GitHub pratar med AWS (OIDC)
 
-#### Ny CI-pipeline (påbörjad)
+När vår pipeline behöver utföra uppgifter i AWS, som att driftsätta vår app, måste den kunna bevisa sin identitet på ett säkert sätt. Istället för att använda riskfyllda, permanenta lösenord använder vi en modern standard som heter **OpenID Connect (OIDC)**. Tänk på det som en digital passkontroll: istället för en statisk accessnyckel, får vår pipeline ett temporärt och unikt "pass" (en OIDC-token) från GitHub för varje enskild körning.
 
-- Ny GitHub Actions-fil [.github/workflows/test.yml](.github/workflows/test.yml):
-  - Innehåller `TODO`-sektioner för checkout, test, coverage och artefaktuppladdning
+AWS är konfigurerat att lita på dessa "pass" från just ert GitHub-repository. När pipelinen visar upp sitt pass, svarar AWS genom att låta den "låna" en uppsättning tillfälliga behörigheter. Dessa behörigheter är definierade i en **IAM-roll** som jag redan har förberett åt er: `devops1-GitHubWorkflow`. Denna roll ger pipelinen precis de rättigheter den behöver för att driftsätta er app, och ingenting mer. Hela denna säkra handskakning sker automatiskt i bakgrunden.
 
-#### Förbättrad utvecklingsmiljö
+I praktiken ser ni detta hända i `deploy-to-dev.yml`-filen i steget `Configure AWS credentials`. Genom att peka på den förberedda rollen kan vår pipeline interagera med AWS helt utan att vi någonsin behöver hantera eller lagra några hemliga nycklar i GitHub. Detta minimerar säkerhetsriskerna och är standardpraxis i moderna molnmiljöer.
 
-- Makefile uppdaterad:
-  - `python -m` används nu vilket gör det mer kompatibelt med virtualenv
-- [.gitignore](.gitignore) utökad med `.venv`, coverage-filer och rapporter
+Läs mer:
 
-#### Miljöhantering och feature flags
+- [OpenID Connect (GitHubs dokumentation)](https://docs.github.com/en/actions/concepts/security/openid-connect)
 
-- Ny fil: [app/env.py](.app/env.py)
-  - Läser `.env`-fil (om den finns)
-  - Hanterar feature flags: `FEATURE_DDB`, `FEATURE_ADMIN`
-  - Hämtar `ADMIN_PASSWORD`
-- Ny [.env.example](.env.example) för att visa hur lokal miljö kan konfigureras
+#### Samarbete och Felsökning: `devops1-GroupViewer`-rollen
 
-#### Datamodeller och mock-DDB
+Eftersom ni som team endast driftsätter till **ett** av era AWS-konton, är det viktigt att alla i teamet kan se vad som händer, särskilt om något går fel. För att lösa detta har jag förberett en speciell roll som heter `devops1-GroupViewer`. Tänk på den som ett gästpass som ger er `read-only`-behörigheter till deployment-kontot. Med denna roll kan ni från era egna konton se AppRunner-tjänsten, kontrollera status på driftsättningar och, viktigast av allt, läsa loggarna i CloudWatch. Detta är avgörande för att ni ska kunna samarbeta effektivt vid felsökning.
 
-- Ny fil: [app/models.py](./app/models.py) med Pydantic-modeller för att validera data från databasen
-- Ny mockdatabas: [app/storage/ddb.py](./app/storage/ddb.py) (in-memory med två inlägg)
-  - Stöder `list_posts`, `get_post`, `create_post`, `delete_post`
-  - Funktionalitet styrs med `FEATURE_DDB`
+När ni behöver titta på resurserna i det gemensamma deployment-kontot, loggar ni först in på ert **eget** AWS-konto. Därefter använder ni funktionen "Switch Role" i AWS-konsolen för att temporärt "låna" `devops1-GroupViewer`-rollens behörigheter i det andra kontot. Ni kommer att behöva ange **konto-ID:t** för det konto ni deployar till samt **rollnamnet**, vilket är `devops1-GroupViewer`.
 
-#### Appstruktur och routers
+**Guide:** [Så här byter du till en roll i AWS-konsolen (AWS Dokumentation)](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-console.html)
 
-- [app/main.py](./app/main.py) omstrukturerad:
-  - Separata funktioner för att mounta statiska filer, registrera routers, serva /robots.txt
-- Ny [app/start.py](./app/start.py) används för Uvicorn start
-- [app/routers/web.py](./app/routers/web.py) kraftigt utbyggd:
-  - Stöder visning av posts, enskild post och adminpanel
-  - CRUD-funktionalitet för inlägg via formulär
-  - Behörighet styrs via `FEATURE_ADMIN` och lösenord (`ADMIN_PASSWORD`)
+#### Vår `Deploy to Dev`-pipeline i detalj
 
-#### HTML
+Vårt nya workflow, `deploy-to-dev.yml`, orkestrerar hela denna process. Varje steg har ett tydligt syfte och bygger vidare på det föregående.
 
-- [index.html](./app/templates/index.html) visar inlägg eller fallback-meddelande
-- [post.html](./app/templates/post.html) visar ett specifikt inlägg
-- [admin.html](./app/templates/admin.html) innehåller formulär för skapande/radering av inlägg (kräver lösenord: `ADMIN_PASSWORD`)
+**Steg 1: Setup & Konfiguration**
+
+- **Vad?** Pipelinen checkar ut koden och använder en säker OIDC-anslutning för att få temporära AWS-credentials.
+- **Varför?** Detta är grunden. Vi behöver koden för att kunna bygga den, och vi behöver säkra, lösenordsfria rättigheter för att kunna interagera med AWS.
+
+**Steg 2: Bootstrap – Förbered Spelplanen**
+
+- **Vad?** Pipelinen kör två **idempotenta** bootstrap-skript. "Idempotent" betyder att de kan köras om och om igen utan att orsaka problem. Skripten säkerställer att den S3-bucket och den DynamoDB-tabell som OpenTofu behöver för att spara sitt tillstånd (`state`) existerar. De ser även till att vårt ECR-repository finns på plats.
+- **Varför?** Genom att köra detta i början av varje deploy, garanterar vi att förutsättningarna för vår infrastruktur alltid är korrekta, även om det är den allra första körningen. Detta gör pipelinen självförsörjande och robust.
+
+**Steg 3: Bygg Artefakten (Docker Image)**
+
+- **Vad?** Pipelinen genererar en unik **image-tagg** från den aktuella comittens SHA-hash (t.ex. `a1b2c3d`). Sedan byggs en Docker-image enligt vår `Dockerfile` och pushas till ECR med denna unika tagg.
+- **Varför?** Vi skapar en **oföränderlig (immutable) artefakt**. Varje version av vår kod får en unik, spårbar paketering. Detta är kritiskt för att kunna göra säkra och förutsägbara driftsättningar och, om nödvändigt, enkla rollbacks. Vi undviker den opålitliga `:latest`-taggen.
+
+**Steg 4: Driftsätt Infrastruktur & Applikation (OpenTofu)**
+
+- **Vad?** Pipelinen kör `tofu apply`. OpenTofu läser våra `.tf`-filer och jämför dem med det nuvarande tillståndet i AWS.
+- **Varför?** Detta är hjärtat i IaC. Tofu ser att `image_tag`-variabeln har ett nytt värde. Den instruerar då AppRunner att starta en ny deployment-process och hämta den nya imagen från ECR. All annan infrastruktur, som DynamoDB-tabellen, lämnas orörd om den inte har ändrats i koden.
+
+**Steg 5: Övervaka & Verifiera**
+
+- **Vad?** Efter att `tofu apply` är klar, startar ett skript som aktivt frågar AppRunner om statusen på driftsättningen. När AppRunner rapporterar att den nya versionen är uppe, körs våra **End-to-End (E2E) tester** mot den publika URL:en.
+- **Varför?** En lyckad `tofu apply` betyder bara att vi har bett AWS att göra något. Det betyder inte att applikationen faktiskt startade korrekt. Vi måste aktivt övervaka processen och sedan köra tester mot den live-miljön för att få ett slutgiltigt kvitto på att allt fungerar.
+
+**Steg 6: Markera Framgång (Git Tag)**
+
+- **Vad?** Endast om alla tidigare steg har lyckats, skapar pipelinen en ny Git-tagg (t.ex. `deploy-dev-a1b2c3d-20250801-1530`) och pushar den till repot.
+- **Varför?** Detta skapar en permanent och lättläst historik över exakt vilka versioner av koden som har driftsatts till vår `dev`-miljö. Det gör det enkelt att se vad som är live och att referera till specifika releaser.
 
 ## Kom igång
 
@@ -131,10 +125,10 @@ Data lagras för tillfället i en in-memory mockdatabas, vilket gör det enkelt 
    make install # installerar python-paketen som behövs för utveckling
    ```
 
-3. Kör utvecklingsservern:
+3. Kör utvecklingsservern (lokalt med localstack istället för riktig AWS DynDB):
 
    ```bash
-   make dev
+   make dev-local
    ```
 
    Öppna webbläsaren på [http://localhost:8000](http://localhost:8000).
@@ -145,10 +139,12 @@ Data lagras för tillfället i en in-memory mockdatabas, vilket gör det enkelt 
 - `make lint-fix`: fixar lintproblem (kodformattering och lintregler)
 - `make test`: kör alla tester
 - `make docker-run`: bygger image och startar appen i container ([http://localhost:8000](http://localhost:8000))
-- `dev-local` : startar appen lokalt ihop med Localstack (körs i docker)
-- `localstack-up` : startar Localstack i Docker med en lokal AWS-miljö (vi använder den för DynamoDB)
-- `test-unit` : kör alla unit-test
-- `test-integ` : kör alla integrationstest
+- `make dev-local` : startar appen lokalt ihop med Localstack (körs i docker)
+- `make localstack-up` : startar Localstack i Docker med en lokal AWS-miljö (vi använder den för DynamoDB)
+- `make test-unit` : kör alla unit-test
+- `make test-integ` : kör alla integrationstest
+- `make test-system` : kör systemtest mot deployed miljö
+- `make test-e2e` : kör end-to-end tester
 
 ## Lokal körning med Localstack
 
@@ -165,8 +161,14 @@ Se `dev-local` och `localstack-up` i [Makefile](Makefile) för att se hur Locals
 ```
 .
 ├── .github/                  PR-mall & workflows
+│   └── workflows/            GitHub Actions workflows
+│       ├── code_quality.yml              Kod-kvalitet checks
+│       ├── deploy-to-dev.yml             Skapar dev infrastruktur och gör deployment av app
+│       ├── destroy-infrastructure.yml    Tar bort all infrastruktur (triggas manuell)
+│       ├── integ_test.yml                Integrationstester
+│       └── test.yml                      Enhetstester
 ├── app/                      Applikationskod (FastAPI)
-│   ├── env.py                Exponerar miljövariabler och feature flags
+│   ├── env.py                Miljövariabler, feature flags och miljödetektering
 │   ├── main.py               Skapar app-instans, mountar statiska filer och routers
 │   ├── models.py             Pydantic-modeller för blogginlägg
 │   ├── routers/              API- och webb-routes
@@ -175,8 +177,8 @@ Se `dev-local` och `localstack-up` i [Makefile](Makefile) för att se hur Locals
 │   ├── start.py              Startpunkt för appen (med hjälp av Uvicorn)
 │   ├── static/
 │   │   └── robots.txt        Förhindrar att appen indexeras av sökmotorer
-│   ├── storage/              Databaslager (mock i Sprint 2)
-│   │   ├── ddb.py            Databaskod mot DynamoDB
+│   ├── storage/              Databaslager med miljömedveten credential-hantering
+│   │   ├── ddb.py            Databaskod mot DynamoDB (lokal och produktion)
 │   │   └── ddb_mock.py       In-memory databas med CRUD-metoder
 │   └── templates/            HTML-mallar för renderade sidor
 │       ├── admin.html        Adminpanel för att skapa och radera inlägg
@@ -184,17 +186,24 @@ Se `dev-local` och `localstack-up` i [Makefile](Makefile) för att se hur Locals
 │       ├── post.html         Visar ett enskilt inlägg
 │       └── status.html       Statussida med commit-hash
 ├── docs/                     Sprintmål och instruktioner
-├── infra/                    (kommer senare) Terraform-infrastruktur
+├── infra/                    Infrastruktur som kod (Terraform/OpenTofu)
+│   ├── backend.tf            Terraform backend-konfiguration
+│   ├── variables.tf          Input-variabler för infrastruktur
+│   ├── apprunner.tf          AWS AppRunner service och ECR repository
+│   ├── dynamodb.tf           DynamoDB tabell för produktion
+│   ├── outputs.tf            Infrastructure outputs
+│   ├── create-tfstate-backend.sh  Script för backend-setup (idempotent, dvs säkert att köra flera gånger)
+│   ├── create-ecr.sh         Script för ECR repository-skapande (idempotent, dvs säkert att köra flera gånger)
 │   └── local/
 │       └── init.py           Skapar/initierar DynamoDB tabell i Localstack
 ├── tests/
 │   ├── integration/          Integrationstester
 │   │   └── test_localstack_and_ddb_table.py     Test som kollar att Localstack och konfiguration är på plats
-│   ├── system/
+│   ├── system/               End-to-end tester mot deployed miljö
 │   └── unit/                 Enhetstester
 │       └── test_import.py    Ser till att moduler räknas med i coverage
 ├── Dockerfile                För körning med Docker
-├── docker-compose.ym         För körning av Localstack (i Docker)
+├── docker-compose.yml        För körning av Localstack (i Docker)
 ├── Makefile                  Samling av kommandon för utveckling
 ├── requirements.in           Beroenden för produktion
 ├── requirements-dev.in       Beroenden för utveckling/pipeline

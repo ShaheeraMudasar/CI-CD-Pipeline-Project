@@ -1,0 +1,57 @@
+name: Destroy Infrastructure
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: 'Type "destroy" to confirm'
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  destroy:
+    name: Destroy Infrastructure
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ github.event.inputs.confirm_destroy == 'destroy' && vars.DEPLOY_ENABLED == 'true' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/devops1-GitHubWorkflow
+          role-session-name: GitHubActions-DestroyInfra
+          aws-region: us-east-1
+
+      - name: Install OpenTofu
+        uses: opentofu/setup-opentofu@v1
+
+      - name: Initialize Terraform backend
+        working-directory: infra
+        run: |
+          tofu init \
+            -backend-config="bucket=devops1-tfstate-${{ vars.AWS_ACCOUNT_ID }}"
+
+      - name: Destroy all infrastructure
+        working-directory: infra
+        run: |
+          echo "Destroying all infrastructure including DynamoDB..."
+          tofu destroy -auto-approve \
+            -var="deploy_enabled=true" \
+            -var="aws_account_id=${{ vars.AWS_ACCOUNT_ID }}" \
+            -var="image_tag=any-dummy-value" \
+            -var="admin_password=any-dummy-value"
+
+      - name: Post deployment URL to Job Summary
+        if: success()
+        run: |
+          echo "### Dev-infrastrukturen borttagen" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All infrastruktur har tagits bort." >> $GITHUB_STEP_SUMMARY
+          echo "Kör worflow 'Deploy to Dev Environment' för att återskapa igen." >> $GITHUB_STEP_SUMMARY

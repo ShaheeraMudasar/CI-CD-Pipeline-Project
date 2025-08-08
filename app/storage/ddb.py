@@ -1,13 +1,13 @@
 from datetime import datetime, timezone
 from typing import Optional
-import boto3
-from botocore.exceptions import ClientError
-from datetime import datetime, timezone
 
 import boto3
 from botocore.exceptions import ClientError
 
-from app.env import feature_ddb_enabled, get_aws_credentials
+import boto3
+from botocore.exceptions import ClientError
+
+from app.env import feature_ddb_enabled, get_aws_credentials, get_dynamodb_config
 from app.models import PostIn, PostListItem, PostOut
 
 TABLE_NAME = "DevOps1_Posts"
@@ -19,8 +19,22 @@ class DynamoClient:
     """
 
     def __init__(self):
-        self._dynamodb = boto3.resource("dynamodb", **get_aws_credentials())
-        self._table = self._dynamodb.Table(TABLE_NAME)
+        print("[DDB] Initializing DynamoDB client")
+        config = get_dynamodb_config()
+        print(
+            f"[DDB] Config: region={config.get('region_name')}, endpoint={config.get('endpoint_url', 'AWS default')}"
+        )
+
+        try:
+            self._dynamodb = boto3.resource("dynamodb", **config)
+            self._table = self._dynamodb.Table(TABLE_NAME)
+            print(f"[DDB] Successfully initialized DynamoDB client for table: {TABLE_NAME}")
+        except Exception as e:
+            print(f"[ERROR] Failed to initialize DynamoDB client: {e!s}")
+            import traceback
+
+            print(f"[ERROR] Traceback: {traceback.format_exc()}")
+            raise
 
     def list_posts(self) -> list[PostListItem]:
         """
@@ -76,7 +90,7 @@ class DynamoClient:
         Ta bort ett inlägg via dess ID.
         """
         try:
-            response = self._table.delete_item(
+            self._table.delete_item(
                 Key={"id": post_id},
                 ConditionExpression="attribute_exists(id)",
             )
@@ -91,8 +105,6 @@ class DynamoClient:
 # en enda instans som återanvänds
 _dynamo_client = None
 
-# en enda instans som återanvänds
-_dynamo_client = None
 
 def get_dynamo_client() -> DynamoClient:
     """
@@ -101,8 +113,11 @@ def get_dynamo_client() -> DynamoClient:
     if feature_ddb_enabled():
         global _dynamo_client
         if _dynamo_client is None:
+            print("[DDB] Using real DynamoDB implementation")
             _dynamo_client = DynamoClient()
         return _dynamo_client
-    from app.storage.ddb_mock import get_mock_dynamo_client
+    else:
+        print("[DDB] Using mock DynamoDB implementation")
+        from app.storage.ddb_mock import get_mock_dynamo_client
 
-    return get_mock_dynamo_client()
+        return get_mock_dynamo_client()

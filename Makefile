@@ -60,3 +60,11 @@ test-integ: localstack-up
 docker-run:
 	docker build -t blog-app .
 	docker run --rm -p 8000:8000 blog-app
+
+# kör systemtest
+test-system:
+	@echo "Running system tests..."
+	python -m pytest tests/system -v
+
+# kör end-to-end test
+test-e2e: test-system
