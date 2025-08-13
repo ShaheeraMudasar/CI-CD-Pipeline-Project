@@ -25,9 +25,9 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/devops1-GitHubWorkflow
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/devops1-GitHubWorkflow
           role-session-name: GitHubActions-DestroyInfra
-          aws-region: us-east-1
+          aws-region: ${{ vars.AWS_REGION }}
 
       - name: Install OpenTofu
         uses: opentofu/setup-opentofu@v1
@@ -36,7 +36,7 @@ jobs:
         working-directory: infra
         run: |
           tofu init \
-            -backend-config="bucket=devops1-tfstate-${{ vars.AWS_ACCOUNT_ID }}"
+            -backend-config="bucket=devops1-tfstate-${{ secrets.AWS_ACCOUNT_ID }}"
 
       - name: Destroy all infrastructure
         working-directory: infra
@@ -44,7 +44,7 @@ jobs:
           echo "Destroying all infrastructure including DynamoDB..."
           tofu destroy -auto-approve \
             -var="deploy_enabled=true" \
-            -var="aws_account_id=${{ vars.AWS_ACCOUNT_ID }}" \
+            -var="aws_account_id=${{ secrets.AWS_ACCOUNT_ID }}" \
             -var="image_tag=any-dummy-value" \
             -var="admin_password=any-dummy-value"
 
