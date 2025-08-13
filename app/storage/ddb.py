@@ -94,7 +94,6 @@ class DynamoClient:
                 Key={"id": post_id},
                 ConditionExpression="attribute_exists(id)",
             )
-            _ = response  # 👈 This tells the linter: "I know it's unused — on purpose"
             return True
         except ClientError as e:
             if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
