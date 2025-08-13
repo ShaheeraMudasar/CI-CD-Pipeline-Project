@@ -20,7 +20,9 @@ jobs:
   deploy-to-dev:
     name: Deploy to Dev Environment
     runs-on: ubuntu-latest
-    if: ${{ (github.event_name == 'pull_request' || github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch') && vars.DEPLOY_ENABLED == 'true' }}
+    # github.event_name == 'pull_request' ||
+    # removed this condition for now
+    if: ${{ (github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch') && vars.DEPLOY_ENABLED == 'true' }}
 
     steps:
       # 1. Checka ut kod & Konfigurera AWS
