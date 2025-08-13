@@ -4,10 +4,7 @@ from typing import Optional
 import boto3
 from botocore.exceptions import ClientError
 
-import boto3
-from botocore.exceptions import ClientError
-
-from app.env import feature_ddb_enabled, get_aws_credentials, get_dynamodb_config
+from app.env import feature_ddb_enabled, get_dynamodb_config
 from app.models import PostIn, PostListItem, PostOut
 
 TABLE_NAME = "DevOps1_Posts"
@@ -115,8 +112,7 @@ def get_dynamo_client() -> DynamoClient:
             print("[DDB] Using real DynamoDB implementation")
             _dynamo_client = DynamoClient()
         return _dynamo_client
-    else:
-        print("[DDB] Using mock DynamoDB implementation")
-        from app.storage.ddb_mock import get_mock_dynamo_client
+    print("[DDB] Using mock DynamoDB implementation")
+    from app.storage.ddb_mock import get_mock_dynamo_client
 
-        return get_mock_dynamo_client()
+    return get_mock_dynamo_client()
