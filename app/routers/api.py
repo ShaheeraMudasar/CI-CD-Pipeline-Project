@@ -10,6 +10,7 @@ router = APIRouter()
 async def health():
     return JSONResponse(content={"status": "ok"}, status_code=200)  # Sends status as JSON
 
+
 @router.get("/posts")
 async def list_posts():
     """Returnera lista med alla inlägg via JSON API."""
