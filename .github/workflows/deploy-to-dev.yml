@@ -122,7 +122,10 @@ jobs:
       # Denna behöver vi nog sen, sätt denna som env variabel
       # steps.infra_outputs.outputs.apprunner_url
       - name: Run E2E tests
-        run: pytest tests/system -v
+        env: 
+          APPRUNNER_URL: ${{steps.infra_outputs.outputs.apprunner_url}}
+        run: |
+          python -m pytest tests/system --no-cov -v 
 
       # 7. Tagga Release
       - name: Tag successful deployment
