@@ -90,7 +90,7 @@ jobs:
 
       - name: Apply infrastructure changes
         working-directory: infra
-        run: tofu apply -auto-approve tfplan
+        run: tofu apply -auto-approve "tfplan"
 
       # 5. Övervaka & Testa
       - name: Get Infrastructure Outputs
