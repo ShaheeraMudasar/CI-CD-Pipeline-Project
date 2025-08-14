@@ -86,7 +86,6 @@ jobs:
             -var="deploy_enabled=${{ vars.DEPLOY_ENABLED }}" \
             -var="feature_admin=${{ secrets.FEATURE_ADMIN }}" \
             -var="admin_password=${{ secrets.ADMIN_PASSWORD }}" \
-
             -out=tfplan
 
       - name: Apply infrastructure changes
