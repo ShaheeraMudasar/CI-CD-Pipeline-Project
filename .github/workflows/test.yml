@@ -33,7 +33,7 @@ jobs:
       # TODO: 4) Kör enhetstester med coverage    
       - name: enhetstester
         run: |
-          python -m pytest tests/unit
+          python -m pytest tests/unit --cov --cov-branch --cov-report=xml
       
       # TODO: 5) Ladda upp filen för codecov
       - name: Upload codecov report
