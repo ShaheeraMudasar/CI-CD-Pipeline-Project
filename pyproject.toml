@@ -44,6 +44,7 @@ asyncio_default_fixture_loop_scope = "function"
 [tool.coverage.run]
 branch = true
 omit = [ 
+  "app/start.py", # ingen kod som behöver testas
   "app/storage/ddb_mock.py", # skippar nu eftersom det är testkod
   "app/storage/ddb.py",
   "app/models.py"
