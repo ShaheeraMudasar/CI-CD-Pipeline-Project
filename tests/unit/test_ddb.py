@@ -26,6 +26,7 @@ def test_list_posts_returns_sorted():
     expected = [PostListItem(id="1", title="First"), PostListItem(id="2", title="Second")]
     assert_that(result, equal_to(expected))
 
+
 def test_get_post_returns_none_when_item_not_found():
     client = DynamoClient()
     client._table = MagicMock()
