@@ -202,6 +202,7 @@ async def test_status_returns_status_template_with_health_data():
         assert_that(response.context["commit_hash"], equal_to("abc123"))
         assert_that(response.context["uptime"], equal_to("1h 2m 3s"))
 
+
 # This unit test checks if an exception during deletion raises and is logged
 @pytest.mark.asyncio
 async def test_delete_post_from_form_raises_exception():
@@ -237,7 +238,10 @@ async def test_delete_post_from_form_when_admin_disabled():
     request = Request(scope, receive=receive)
     request._form = form_data
 
-    with patch("app.routers.web.feature_admin_enabled", return_value=False), pytest.raises(web.HTTPException) as excinfo:
+    with (
+        patch("app.routers.web.feature_admin_enabled", return_value=False),
+        pytest.raises(web.HTTPException) as excinfo,
+    ):
         await web.delete_post_from_form(request, password="admin123", post_id="1")
 
     assert_that(excinfo.value.status_code, equal_to(403))
