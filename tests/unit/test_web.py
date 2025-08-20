@@ -201,3 +201,66 @@ async def test_status_returns_status_template_with_health_data():
         assert_that(response.context["status"], equal_to("Healthy"))
         assert_that(response.context["commit_hash"], equal_to("abc123"))
         assert_that(response.context["uptime"], equal_to("1h 2m 3s"))
+
+# This unit test checks if an exception during deletion raises and is logged
+@pytest.mark.asyncio
+async def test_delete_post_from_form_raises_exception():
+    form_data = FormData({"password": "admin123", "post_id": "1"})
+    scope = {"type": "http", "method": "POST"}
+
+    async def receive():
+        return {"type": "http.request", "body": b""}
+
+    request = Request(scope, receive=receive)
+    request._form = form_data
+
+    with (
+        patch("app.routers.web.feature_admin_enabled", return_value=True),
+        patch("app.routers.web.get_admin_password", return_value="admin123"),
+        patch("app.routers.web.get_dynamo_client", side_effect=Exception("Database failure")),
+        pytest.raises(Exception) as excinfo,
+    ):
+        await web.delete_post_from_form(request, password="admin123", post_id="1")
+
+    assert_that(str(excinfo.value), contains_string("Database failure"))
+
+
+# This unit test checks if admin functionality is disabled
+@pytest.mark.asyncio
+async def test_delete_post_from_form_when_admin_disabled():
+    form_data = FormData({"password": "admin123", "post_id": "1"})
+    scope = {"type": "http", "method": "POST"}
+
+    async def receive():
+        return {"type": "http.request", "body": b""}
+
+    request = Request(scope, receive=receive)
+    request._form = form_data
+
+    with patch("app.routers.web.feature_admin_enabled", return_value=False), pytest.raises(web.HTTPException) as excinfo:
+        await web.delete_post_from_form(request, password="admin123", post_id="1")
+
+    assert_that(excinfo.value.status_code, equal_to(403))
+    assert_that(str(excinfo.value.detail), contains_string("Adminfunktionalitet är avstängd"))
+
+
+# This unit test checks if wrong admin password returns the admin page with error
+@pytest.mark.asyncio
+async def test_delete_post_from_form_wrong_password():
+    form_data = FormData({"password": "wrongpass", "post_id": "1"})
+    scope = {"type": "http", "method": "POST"}
+
+    async def receive():
+        return {"type": "http.request", "body": b""}
+
+    request = Request(scope, receive=receive)
+    request._form = form_data
+
+    with (
+        patch("app.routers.web.feature_admin_enabled", return_value=True),
+        patch("app.routers.web.get_admin_password", return_value="admin123"),
+    ):
+        response = await web.delete_post_from_form(request, password="wrongpass", post_id="1")
+
+    assert_that(response.template.name, equal_to("admin.html"))
+    assert_that(response.context["error"], equal_to("Fel lösenord"))
