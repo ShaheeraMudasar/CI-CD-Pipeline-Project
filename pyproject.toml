@@ -46,7 +46,7 @@ branch = true
 omit = [ 
   "app/start.py", # ingen kod som behöver testas
   "app/storage/ddb_mock.py", # skippar nu eftersom det är testkod
-  "app/storage/ddb.py",
+  "app/storage/ddb.py", # skippar nu eftersom det är testkod
   "app/models.py",
   "app/main.py"
 ] 
