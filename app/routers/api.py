@@ -1,4 +1,4 @@
-from fastapi import APIRouter  # HTTPException dont uses yet
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 
 from app.storage.ddb import get_dynamo_client
@@ -8,7 +8,8 @@ router = APIRouter()
 
 @router.get("/health")
 async def health():
-    return JSONResponse(content={"status": "ok"}, status_code=200)  # Sends status as JSON
+    # Sends status as JSON
+    return JSONResponse(content={"status": "ok"}, status_code=200)
 
 
 @router.get("/posts")
