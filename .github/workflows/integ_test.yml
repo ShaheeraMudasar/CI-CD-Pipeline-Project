@@ -1,18 +1,18 @@
 name: Integration tests
 
 on:
-  # TODO: Kör integ-tester på alla PR mot main
+  # Kör integ-tester på alla PR mot main
   pull_request:
     branches:
     - main 
-  # TODO: Kör integ-tester även vid push till main
+  # Kör integ-tester även vid push till main
   push:
     branches:
     - main 
 
 jobs:
   integ-test:
-    name: integ-test # Bara ett namn
+    name: integ-test
     runs-on: ubuntu-latest
     env:
       FEATURE_DDB: ${{ secrets.FEATURE_DDB }}
@@ -24,24 +24,24 @@ jobs:
 
     steps:
 
-      # TODO: 1) Checka ut koden
       - name: checkout repo
+        # 1) Checka ut koden
         uses: actions/checkout@v4
-      # TODO: 2) Installera rätt Python-version
       - name: install python 3.12
+        # 2) Installera rätt Python-version
         uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
-      # TODO: 3) Installera beroenden
       - name: install requirment
+        # 3) Installera beroenden
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
           pip install -r requirements.txt
 
-      # TODO: 4) Starta localstack
       - name: start localstack
+        # 4) Starta localstack
         run: docker compose up -d
 
       # Stepet väntar på att localstack är redo först 
@@ -53,14 +53,14 @@ jobs:
           done
 
 
-      # TODO: 5) Initiera DDB-tabeller (infra/local/init.py)
+      # 5) Initiera DDB-tabeller (infra/local/init.py)
       - name: initiera dynamoDB-tabeler
         run: python infra/local/init.py
 
-      # TODO: 6) Kör alla integrationstest
+      # 6) Kör alla integrationstest
       - name: kör alla integration tester
         run: pytest --no-cov tests/integration
 
-      # TODO: 7) Stoppa docker
+      # 7) Stoppa docker
       - name: stoppa docker
         run: docker compose down

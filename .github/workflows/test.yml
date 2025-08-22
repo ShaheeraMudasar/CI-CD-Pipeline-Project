@@ -1,28 +1,27 @@
 name: Test & Coverage
 
-on: #triggers on following events
+on:
   pull_request:
   push:
     branches: 
-      - main #applicable only when pushing to main branch
-      # - codecov-branch # Added for testing during push to branch. Will be deleted upon PR.
+      - main
 
 jobs:
   test:
     name: test # <-- detta namn visas i repo settings
     runs-on: ubuntu-latest
     steps:
-      # TODO: 1) Checka ut koden
+      # 1) Checka ut koden
       - name: Checkout repo  #fetching repo code
         uses: actions/checkout@v4
 
-      # TODO: 2) Installera rätt Python-version
+      # 2) Installera rätt Python-version
       - name: Install python 3.12
         uses: actions/setup-python@v5
         with: 
           python-version: 3.12
 
-      # TODO: 3) Installera beroenden    
+      # 3) Installera beroenden    
         
       - name: Install dependencies
         run: |
@@ -30,12 +29,12 @@ jobs:
           pip install -r requirements-dev.txt;
           pip install -r requirements.txt;
 
-      # TODO: 4) Kör enhetstester med coverage    
+      # 4) Kör enhetstester med coverage    
       - name: enhetstester
         run: |
           python -m pytest tests/unit -v --cov-report=xml
       
-      # TODO: 5) Ladda upp filen för codecov
+      # 5) Ladda upp filen för codecov
       - name: Upload codecov report
         uses: codecov/codecov-action@v5
         with:

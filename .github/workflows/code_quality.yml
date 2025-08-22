@@ -1,17 +1,19 @@
 name: Lint
 
-on: #triggers on following events
+on: 
+  # triggers on following events
   pull_request:
   push:
     branches: 
-      - main #applicable only when pushing to main branch
+      - main
 
 jobs:
   lint:
     name: lint # <-- detta namn visas i repo settings
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo  #fetching repo code
+      - name: Checkout repo  
+        # fetching repo code
         uses: actions/checkout@v4
 
       - name: Install python 3.12
