@@ -39,8 +39,6 @@ async def index(request: Request):
 def get_git_commit_hash() -> str:
     try:
         # Get the latest commit hash
-        # commit_hash = subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
-        # return commit_hash
         return subprocess.check_output(["git", "rev-parse", "HEAD"]).decode("utf-8").strip()
     except subprocess.CalledProcessError:
         return "Unknown git command"
