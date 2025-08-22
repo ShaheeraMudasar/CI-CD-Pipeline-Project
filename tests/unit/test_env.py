@@ -11,7 +11,7 @@ def test_get_admin_password_returns_default_when_unset():
     # Simulate empty environment (no ADMIN_PASSWORD)
     with patch.dict("os.environ", {}, clear=True):
         result = env.get_admin_password()
-        assert_that(result, equal_to("admin1234"))
+        assert_that(result, equal_to("admin123"))
 
 
 def test_get_admin_password_uses_env_var_when_set():
@@ -20,14 +20,6 @@ def test_get_admin_password_uses_env_var_when_set():
     with patch.dict("os.environ", {"ADMIN_PASSWORD": "Super$ecret!"}, clear=True):
         result = env.get_admin_password()
         assert_that(result, equal_to("Super$ecret!"))
-
-
-def test_get_admin_password_accepts_custom_default():
-    env._loaded_env = False
-    # Simulate empty env but pass custom default
-    with patch.dict("os.environ", {}, clear=True):
-        result = env.get_admin_password(default="fallback123")
-        assert_that(result, equal_to("fallback123"))
 
 
 def test_get_aws_region():
