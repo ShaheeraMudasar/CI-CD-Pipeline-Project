@@ -1,0 +1,1 @@
+[![codecov](https://codecov.io/github/ShaheeraMudasar/CI-CD-Pipeline-Project/graph/badge.svg?token=4EMVYZ81DU)](https://codecov.io/github/ShaheeraMudasar/CI-CD-Pipeline-Project)
