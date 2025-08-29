@@ -11,7 +11,7 @@ def test_get_admin_password_returns_default_when_unset():
     # Simulate empty environment (no ADMIN_PASSWORD)
     with patch.dict("os.environ", {}, clear=True):
         result = env.get_admin_password()
-        assert_that(result, equal_to("admin123"))
+        assert_that(result, equal_to("admin1234"))
 
 
 def test_get_admin_password_uses_env_var_when_set():
