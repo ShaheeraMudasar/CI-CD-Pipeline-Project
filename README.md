@@ -167,6 +167,23 @@ These are configured under **Settings → Secrets and variables → Actions** in
 
 ---
 
+---
+
+📄 **Environment Configuration**
+
+All environment variables used for local development are defined in the included `.env.example` file.
+
+To set up your local environment, copy the file:
+
+```bash
+cp .env.example .env
+```
+
+This file includes feature flags, admin credentials for testing, and mock AWS settings for Localstack. These values are **not sensitive** and are only meant to demonstrate how the application works in a local or demo environment.
+
+> ⚠️ **Security Note:**  
+> The `.env.example` file contains hardcoded credentials like `ADMIN_PASSWORD`, which are intentionally included to support demo/testing workflows. In real-world deployments, such values should never be committed to version control and should instead be handled using GitHub Secrets, environment variables, or secret managers.
+
 💻 **Running the Project Locally**
 
 ```bash
