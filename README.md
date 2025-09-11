@@ -91,65 +91,6 @@ Automated workflows are managed using **GitHub Actions** and configured to ensur
 - **Makefile** – Local development automation
 
 ---
-## Project Structure
-
-```
-.
-├── .github/                  # PR templates & workflows
-│   └── workflows/            # GitHub Actions workflows
-│       ├── code_quality.yml              Code linting and quality checks
-│       ├── deploy-to-dev.yml             Creates dev infrastructure and deploys the app
-│       ├── destroy-infrastructure.yml    Removes all infrastructure (triggered manually)
-│       ├── integ_test.yml                Integration tests
-│       └── test.yml                      Unit tests
-├── app/                      # Application code (FastAPI)
-│   ├── env.py                Environment variables and feature flags
-│   ├── main.py               Creates app instance, mounts static files and routers
-│   ├── models.py             Pydantic models for blog posts
-│   ├── routers/              API and web routes
-│   │   ├── api.py            API endpoints (e.g. /api/v1/health)
-│   │   └── web.py            Web interface, HTML, and forms
-│   ├── start.py              Entrypoint for the app (via Uvicorn)
-│   ├── static/
-│   │   └── robots.txt        Prevents search engine indexing
-│   ├── storage/              Database layer with environment-aware credential handling
-│   │   ├── ddb.py            DynamoDB interaction code (local and prod)
-│   │   └── ddb_mock.py       In-memory DB with CRUD methods
-│   └── templates/            HTML templates for rendered pages
-│       ├── admin.html        Admin panel for creating/deleting posts
-│       ├── index.html        Homepage with list of posts
-│       ├── post.html         Displays a single post
-│       └── status.html       Status page with commit hash
-├── docs/                     Sprint goals and instructions
-├── infra/                    Infrastructure as Code (Terraform/OpenTofu)
-│   ├── backend.tf            Terraform backend config
-│   ├── variables.tf          Input variables for infra
-│   ├── apprunner.tf          AWS AppRunner service and ECR repo
-│   ├── dynamodb.tf           DynamoDB table for production
-│   ├── outputs.tf            Infrastructure outputs
-│   ├── create-tfstate-backend.sh  Script to init remote backend (safe to run multiple times)
-│   ├── create-ecr.sh         Script to create ECR repo (idempotent)
-│   └── local/
-│       └── init.py           Initializes DynamoDB table in Localstack
-├── tests/
-│   ├── integration/          Integration tests
-│   │   └── test_localstack_and_ddb_table.py     Verifies Localstack and config
-│   ├── system/               End-to-end tests for deployed app
-│   └── unit/                 Unit tests
-│       └── test_import.py    Ensures modules are included in coverage
-├── Dockerfile                For running app in Docker
-├── docker-compose.yml        For running Localstack (via Docker)
-├── Makefile                  Collection of local dev commands
-├── requirements.in           Production dependencies
-├── requirements-dev.in       Dev/pipeline dependencies
-├── requirements.txt          Exact production dependencies (generated)
-├── requirements-dev.txt      Exact dev/pipeline dependencies (generated)
-├── pyproject.toml            Lint/test config (Ruff, pytest-cov)
-└── README.md                 This file
-```
-
-
----
 
 🔐 **Secrets & Configuration**
 
@@ -215,6 +156,64 @@ make dev
 ```
 
 ---
+
+## Project Structure
+
+```
+.
+├── .github/                  # PR templates & workflows
+│   └── workflows/            # GitHub Actions workflows
+│       ├── code_quality.yml              Code linting and quality checks
+│       ├── deploy-to-dev.yml             Creates dev infrastructure and deploys the app
+│       ├── destroy-infrastructure.yml    Removes all infrastructure (triggered manually)
+│       ├── integ_test.yml                Integration tests
+│       └── test.yml                      Unit tests
+├── app/                      # Application code (FastAPI)
+│   ├── env.py                Environment variables and feature flags
+│   ├── main.py               Creates app instance, mounts static files and routers
+│   ├── models.py             Pydantic models for blog posts
+│   ├── routers/              API and web routes
+│   │   ├── api.py            API endpoints (e.g. /api/v1/health)
+│   │   └── web.py            Web interface, HTML, and forms
+│   ├── start.py              Entrypoint for the app (via Uvicorn)
+│   ├── static/
+│   │   └── robots.txt        Prevents search engine indexing
+│   ├── storage/              Database layer with environment-aware credential handling
+│   │   ├── ddb.py            DynamoDB interaction code (local and prod)
+│   │   └── ddb_mock.py       In-memory DB with CRUD methods
+│   └── templates/            HTML templates for rendered pages
+│       ├── admin.html        Admin panel for creating/deleting posts
+│       ├── index.html        Homepage with list of posts
+│       ├── post.html         Displays a single post
+│       └── status.html       Status page with commit hash
+├── docs/                     Sprint goals and instructions
+├── infra/                    Infrastructure as Code (Terraform/OpenTofu)
+│   ├── backend.tf            Terraform backend config
+│   ├── variables.tf          Input variables for infra
+│   ├── apprunner.tf          AWS AppRunner service and ECR repo
+│   ├── dynamodb.tf           DynamoDB table for production
+│   ├── outputs.tf            Infrastructure outputs
+│   ├── create-tfstate-backend.sh  Script to init remote backend (safe to run multiple times)
+│   ├── create-ecr.sh         Script to create ECR repo (idempotent)
+│   └── local/
+│       └── init.py           Initializes DynamoDB table in Localstack
+├── tests/
+│   ├── integration/          Integration tests
+│   │   └── test_localstack_and_ddb_table.py     Verifies Localstack and config
+│   ├── system/               End-to-end tests for deployed app
+│   └── unit/                 Unit tests
+│       └── test_import.py    Ensures modules are included in coverage
+├── Dockerfile                For running app in Docker
+├── docker-compose.yml        For running Localstack (via Docker)
+├── Makefile                  Collection of local dev commands
+├── requirements.in           Production dependencies
+├── requirements-dev.in       Dev/pipeline dependencies
+├── requirements.txt          Exact production dependencies (generated)
+├── requirements-dev.txt      Exact dev/pipeline dependencies (generated)
+├── pyproject.toml            Lint/test config (Ruff, pytest-cov)
+└── README.md                 This file
+```
+
 
 🚧 **Known Limitations**
 
